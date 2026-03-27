@@ -1,0 +1,209 @@
+#pragma once
+
+//
+// SCENE COMPONENT FLAGS
+//
+
+#define aiComponent_NORMALS                 0x1
+#define aiComponent_TANGENTS_AND_BITANGENTS 0x2
+#define aiComponent_COLORS                  0x4
+#define aiComponent_TEXCOORDS               0x8
+#define aiComponent_BONEWEIGHTS             0x10
+#define aiComponent_ANIMATIONS              0x20
+#define aiComponent_TEXTURES                0x40
+#define aiComponent_MATERIALS               0x80
+#define aiComponent_LIGHTS                  0x100
+#define aiComponent_CAMERAS                 0x200
+#define aiComponent_MESHES                  0x400
+
+#define aiComponent_TEXCOORDSn(n) (aiComponent_TEXCOORDS << (n))
+#define aiComponent_COLORSn(n) (aiComponent_COLORS << (n))
+
+//
+// UV TRANSFORM FLAGS
+//
+
+#define AI_UVTRAFO_ALL         0x1
+#define AI_UVTRAFO_ROTATION    0x2
+#define AI_UVTRAFO_SCALING     0x4
+#define AI_UVTRAFO_TRANSLATION 0x8
+
+//
+// FBX IMPORT OPTIONS
+//
+
+#define AI_CONFIG_IMPORT_FBX_READ_ALL_GEOMETRY_LAYERS        "AI_CONFIG_IMPORT_FBX_READ_ALL_GEOMETRY_LAYERS"
+#define AI_CONFIG_IMPORT_FBX_READ_ALL_MATERIALS              "AI_CONFIG_IMPORT_FBX_READ_ALL_MATERIALS"
+#define AI_CONFIG_IMPORT_FBX_READ_MATERIALS                  "AI_CONFIG_IMPORT_FBX_READ_MATERIALS"
+#define AI_CONFIG_IMPORT_FBX_READ_TEXTURES                   "AI_CONFIG_IMPORT_FBX_READ_TEXTURES"
+#define AI_CONFIG_IMPORT_FBX_READ_CAMERAS                    "AI_CONFIG_IMPORT_FBX_READ_CAMERAS"
+#define AI_CONFIG_IMPORT_FBX_READ_LIGHTS                     "AI_CONFIG_IMPORT_FBX_READ_LIGHTS"
+#define AI_CONFIG_IMPORT_FBX_READ_ANIMATIONS                 "AI_CONFIG_IMPORT_FBX_READ_ANIMATIONS"
+#define AI_CONFIG_IMPORT_FBX_READ_WEIGHTS                    "AI_CONFIG_IMPORT_FBX_READ_WEIGHTS"
+#define AI_CONFIG_IMPORT_FBX_STRICT_MODE                     "AI_CONFIG_IMPORT_FBX_STRICT_MODE"
+#define AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS                 "AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS"
+#define AI_CONFIG_IMPORT_FBX_OPTIMIZE_EMPTY_ANIMATION_CURVES "AI_CONFIG_IMPORT_FBX_OPTIMIZE_EMPTY_ANIMATION_CURVES"
+#define AI_CONFIG_IMPORT_FBX_EMBEDDED_TEXTURES_LEGACY_NAMING "AI_CONFIG_IMPORT_FBX_EMBEDDED_TEXTURES_LEGACY_NAMING"
+#define AI_CONFIG_FBX_CONVERT_TO_M                           "AI_CONFIG_FBX_CONVERT_TO_M"
+#define AI_CONFIG_IMPORT_FBX_IGNORE_UP_DIRECTION             "AI_CONFIG_IMPORT_FBX_IGNORE_UP_DIRECTION"
+#define AI_CONFIG_FBX_USE_SKELETON_BONE_CONTAINER            "AI_CONFIG_FBX_USE_SKELETON_BONE_CONTAINER"
+#define AI_CONFIG_IMPORT_SCHEMA_DOCUMENT_PROVIDER            "AI_CONFIG_IMPORT_SCHEMA_DOCUMENT_PROVIDER"
+
+//
+// GENERAL
+//
+
+//disable profiling and timing
+#define AI_CONFIG_GLOB_MEASURE_TIME "AI_CONFIG_GLOB_MEASURE_TIME"
+
+//epsilon for checking if a matrix is identity
+#define AI_CONFIG_CHECK_IDENTITY_MATRIX_EPSILON_DEFAULT 1e-6f
+
+//application scaling property key
+#define AI_CONFIG_APP_SCALE_KEY "AI_CONFIG_APP_SCALE_KEY"
+
+//remove empty bones
+#define AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES "AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES"
+
+//global scaling factor key
+#define AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY "AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY"
+
+//do not bundle zlib
+#define ASSIMP_BUILD_NO_OWN_ZLIB
+
+//
+// IMPORT AND EXPORT
+// 
+
+//do not export
+#define ASSIMP_BUILD_NO_EXPORT 1
+
+//disable unused import types, only keep fbx, gltf, gltf2 and obj
+
+#define ASSIMP_BUILD_NO_3DS_IMPORTER 1
+#define ASSIMP_BUILD_NO_3MF_IMPORTER 1
+#define ASSIMP_BUILD_NO_AC_IMPORTER 1
+#define ASSIMP_BUILD_NO_AMF_IMPORTER 1
+#define ASSIMP_BUILD_NO_ASE_IMPORTER 1
+#define ASSIMP_BUILD_NO_ASSBIN_IMPORTER 1
+#define ASSIMP_BUILD_NO_B3D_IMPORTER 1
+#define ASSIMP_BUILD_NO_BLEND_IMPORTER 1
+#define ASSIMP_BUILD_NO_BVH_IMPORTER 1
+#define ASSIMP_BUILD_NO_C4D_IMPORTER 1
+#define ASSIMP_BUILD_NO_COB_IMPORTER 1
+#define ASSIMP_BUILD_NO_COLLADA_IMPORTER 1
+#define ASSIMP_BUILD_NO_CSM_IMPORTER 1
+#define ASSIMP_BUILD_NO_DXF_IMPORTER 1
+#define ASSIMP_BUILD_NO_HMP_IMPORTER 1
+#define ASSIMP_BUILD_NO_IFC_IMPORTER 1
+#define ASSIMP_BUILD_NO_IQM_IMPORTER 1
+#define ASSIMP_BUILD_NO_IRR_IMPORTER 1
+#define ASSIMP_BUILD_NO_IRRMESH_IMPORTER 1
+#define ASSIMP_BUILD_NO_LWO_IMPORTER 1
+#define ASSIMP_BUILD_NO_LWS_IMPORTER 1
+#define ASSIMP_BUILD_NO_M3D_IMPORTER 1
+#define ASSIMP_BUILD_NO_MD2_IMPORTER 1
+#define ASSIMP_BUILD_NO_MD3_IMPORTER 1
+#define ASSIMP_BUILD_NO_MD5_IMPORTER 1
+#define ASSIMP_BUILD_NO_MDC_IMPORTER 1
+#define ASSIMP_BUILD_NO_MDL_IMPORTER 1
+#define ASSIMP_BUILD_NO_MMD_IMPORTER 1
+#define ASSIMP_BUILD_NO_MS3D_IMPORTER 1
+#define ASSIMP_BUILD_NO_NDO_IMPORTER 1
+#define ASSIMP_BUILD_NO_NFF_IMPORTER 1
+#define ASSIMP_BUILD_NO_OFF_IMPORTER 1
+#define ASSIMP_BUILD_NO_OGRE_IMPORTER 1
+#define ASSIMP_BUILD_NO_OPENGEX_IMPORTER 1
+#define ASSIMP_BUILD_NO_PLY_IMPORTER 1
+#define ASSIMP_BUILD_NO_Q3BSP_IMPORTER 1
+#define ASSIMP_BUILD_NO_Q3D_IMPORTER 1
+#define ASSIMP_BUILD_NO_RAW_IMPORTER 1
+#define ASSIMP_BUILD_NO_SIB_IMPORTER 1
+#define ASSIMP_BUILD_NO_SMD_IMPORTER 1
+#define ASSIMP_BUILD_NO_STL_IMPORTER 1
+#define ASSIMP_BUILD_NO_TERRAGEN_IMPORTER 1
+#define ASSIMP_BUILD_NO_3D_IMPORTER 1
+#define ASSIMP_BUILD_NO_USD_IMPORTER 1
+#define ASSIMP_BUILD_NO_X3D_IMPORTER 1
+#define ASSIMP_BUILD_NO_X_IMPORTER 1
+#define ASSIMP_BUILD_NO_X3D_IMPORTER 1
+#define ASSIMP_BUILD_NO_XGL_IMPORTER 1
+
+#define ASSIMP_BUILD_NO_PBRT_EXPORTER 1
+
+#define AI_CONFIG_EXPORT_POINT_CLOUDS "AI_CONFIG_EXPORT_POINT_CLOUDS"
+
+//
+// POST-PROCESS
+//
+
+//favour speed vs accuracy in FindInstancesProcess
+#define AI_CONFIG_FAVOUR_SPEED "AI_CONFIG_FAVOUR_SPEED"
+
+//max smoothing angle for GenVertexNormalsProcess
+#define AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE "AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE"
+
+//exclude list for RemoveRedunantMaterials
+#define AI_CONFIG_PP_RRM_EXCLUDE_LIST ""
+
+//flags for RemoveVCProcess (which components to remove)
+#define AI_CONFIG_PP_RVC_FLAGS "AI_CONFIG_PP_RVC_FLAGS"
+
+//evaluate UV transformations in TextureTransformProcess
+#define AI_CONFIG_PP_TUV_EVALUATE "AI_CONFIG_PP_TUV_EVALUATE"
+
+//node exclusion list for OptimizeGraph
+#define AI_CONFIG_PP_OG_EXCLUDE_LIST "AI_CONFIG_PP_OG_EXCLUDE_LIST"
+
+//maximum bone weights per vertex in LightBoneWeightsProcess
+#define AI_CONFIG_PP_LBW_MAX_WEIGHTS "AI_CONFIG_PP_LBW_MAX_WEIGHTS"
+
+//which meshes to remove in SortByPTypeProcess
+#define AI_CONFIG_PP_SBP_REMOVE "AI_CONFIG_PP_SBP_REMOVE"
+
+//texture channel index for CalcTangentsProcess
+#define AI_CONFIG_PP_CT_TEXTURE_CHANNEL_INDEX "AI_CONFIG_PP_CT_TEXTURE_CHANNEL_INDEX"
+//max smoothing angle for GenVertexNormalsProcess / CalcTangentsProcess
+#define AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE "AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE"
+
+//animation accuracy in FindInvalidDataProcess
+#define AI_CONFIG_PP_FID_ANIM_ACCURACY "AI_CONFIG_PP_FID_ANIM_ACCURACY"
+//ignore texture coordinates in FindInvalidDataProcess
+#define AI_CONFIG_PP_FID_IGNORE_TEXTURECOORDS "AI_CONFIG_PP_FID_IGNORE_TEXTURECOORDS"
+
+//cache size for ImproveCacheLocality
+#define AI_CONFIG_PP_ICL_PTCACHE_SIZE "AI_CONFIG_PP_ICL_PTCACHE_SIZE"
+#define PP_ICL_PTCACHE_SIZE 32
+
+//DeboneProcess - all or none  removal
+#define AI_CONFIG_PP_DB_ALL_OR_NONE "AI_CONFIG_PP_DB_ALL_OR_NONE"
+//threshold for DeboneProcess
+#define AI_CONFIG_PP_DB_THRESHOLD "AI_CONFIG_PP_DB_THRESHOLD"
+
+//minimum area for degenerate triangle removal
+#define AI_CONFIG_PP_FD_CHECKAREA "AI_CONFIG_PP_FD_CHECKAREA"
+//remove degenerate faces
+#define AI_CONFIG_PP_FD_REMOVE "AI_CONFIG_PP_FD_REMOVE"
+
+//maximum number of bones per mesh in SplitByBoneCountProcess
+#define AI_CONFIG_PP_SBBC_MAX_BONES "AI_CONFIG_PP_SBBC_MAX_BONES" 
+//default max bones per mesh in SplitByBoneCountProcess
+#define AI_SBBC_DEFAULT_MAX_BONES 255
+
+//whether to keep hierarchy in PretransformVertices
+#define AI_CONFIG_PP_PTV_KEEP_HIERARCHY "AI_CONFIG_PP_PTV_KEEP_HIERARCHY"
+//normalize vertices in PretransformVertices
+#define AI_CONFIG_PP_PTV_NORMALIZE "AI_CONFIG_PP_PTV_NORMALIZE"
+//add root transformation in PretransformVertices
+#define AI_CONFIG_PP_PTV_ADD_ROOT_TRANSFORMATION "AI_CONFIG_PP_PTV_ADD_ROOT_TRANSFORMATION"
+//root transformation matrix for PretransformVertices
+#define AI_CONFIG_PP_PTV_ROOT_TRANSFORMATION "AI_CONFIG_PP_PTV_ROOT_TRANSFORMATION"
+
+//default max triangles per mesh in SplitLargeMeshesProcess
+#define AI_SLM_DEFAULT_MAX_TRIANGLES 0
+//default maximum number of vertices per mesh in SplitLargeMeshesProcess
+#define AI_SLM_DEFAULT_MAX_VERTICES 0
+//maximum vertices per mesh in SplitLargeMeshesProcess
+#define AI_CONFIG_PP_SLM_VERTEX_LIMIT "AI_CONFIG_PP_SLM_VERTEX_LIMIT"
+//max triangles per mesh in SplitLargeMeshesProcess
+#define AI_CONFIG_PP_SLM_TRIANGLE_LIMIT "AI_CONFIG_PP_SLM_TRIANGLE_LIMIT"

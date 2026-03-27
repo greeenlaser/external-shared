@@ -1,0 +1,50 @@
+//Build script for use with kalamake. Read more at https://github.com/kalakit/kalamake
+
+#version 1.0
+
+#references
+name_bin: assimp
+dir_release: build/release-
+dir_debug: build/debug-
+name_zlib: zlib
+dir_zlib_rel: zlib/release
+dir_zlib_deb: zlib/debug
+
+#global
+compilerlauncher: ccache
+standard: c++20
+binarytype: static
+sources: "code/Common/AssertHandler.cpp", "code/Common/Assimp.cpp", "code/Common/Base64.cpp", "code/Common/BaseImporter.cpp", "code/Common/BaseProcess.cpp", "code/Common/Bitmap.cpp", "code/Common/Compression.cpp", "code/Common/CreateAnimMesh.cpp", "code/Common/DefaultIOStream.cpp", "code/Common/DefaultIOSystem.cpp", "code/Common/DefaultLogger.cpp", "code/Common/Exceptional.cpp", "code/Common/Importer.cpp", "code/Common/ImporterRegistry.cpp", "code/Common/IOSystem.cpp", "code/Common/material.cpp", "code/Common/PostStepRegistry.cpp", "code/Common/RemoveComments.cpp", "code/Common/scene.cpp", "code/Common/SceneCombiner.cpp", "code/Common/ScenePreprocessor.cpp", "code/Common/SGSpatialSort.cpp", "code/Common/simd.cpp", "code/Common/SkeletonMeshBuilder.cpp", "code/Common/SpatialSort.cpp", "code/Common/StandardShapes.cpp", "code/Common/Subdivision.cpp", "code/Common/TargetAnimation.cpp", "code/Common/Version.cpp", "code/Common/VertexTriangleAdjacency.cpp", "code/Common/ZipArchiveIOSystem.cpp", "code/Geometry", "code/Material", "code/PostProcessing", "code/AssetLib/FBX/FBXAnimation.cpp", "code/AssetLib/FBX/FBXBinaryTokenizer.cpp", "code/AssetLib/FBX/FBXConverter.cpp", "code/AssetLib/FBX/FBXDeformer.cpp", "code/AssetLib/FBX/FBXDocument.cpp", "code/AssetLib/FBX/FBXDocumentUtil.cpp", "code/AssetLib/FBX/FBXImporter.cpp", "code/AssetLib/FBX/FBXMaterial.cpp", "code/AssetLib/FBX/FBXMeshGeometry.cpp", "code/AssetLib/FBX/FBXModel.cpp", "code/AssetLib/FBX/FBXNodeAttribute.cpp", "code/AssetLib/FBX/FBXParser.cpp", "code/AssetLib/FBX/FBXProperties.cpp", "code/AssetLib/FBX/FBXTokenizer.cpp", "code/AssetLib/FBX/FBXUtil.cpp", "code/AssetLib/glTFCommon/glTFCommon.cpp", "code/AssetLib/glTF/glTFImporter.cpp", "code/AssetLib/glTF2/glTF2Importer.cpp", "code/AssetLib/Obj/ObjFileImporter.cpp", "code/AssetLib/Obj/ObjFileMtlImporter.cpp", "code/AssetLib/Obj/ObjFileParser.cpp", "contrib/openddlparser/code/DDLNode.cpp", "contrib/openddlparser/code/OpenDDLCommon.cpp", "contrib/openddlparser/code/OpenDDLParser.cpp", "contrib/openddlparser/code/OpenDDLStream.cpp", "contrib/openddlparser/code/Value.cpp", "contrib/pugixml/src"
+headers: ".", "include", "code", "contrib", "contrib/openddlparser/include", "contrib/rapidjson/include", "contrib/utf8cpp/source", "contrib/pugixml/src", "contrib/unzip",  "zlib/include"
+defines: OPENDDL_STATIC_LIBARY
+warninglevel: normal
+customflags: export-compile-commands
+
+#profile debug-windows
+binaryname: ${name_bin}d
+compiler: clang-cl
+buildtype: debug
+buildpath: "${dir_debug}windows"
+links: "${dir_zlib_deb}/${name_zlib}d.lib"
+
+#profile release-windows
+binaryname: ${name_bin}
+compiler: clang-cl
+buildtype: minsizerel
+buildpath: "${dir_release}windows"
+links: "${dir_zlib_rel}/${name_zlib}.lib"
+
+#profile debug-linux
+binaryname: lib${name_bin}d
+compiler: clang++
+buildtype: debug
+buildpath: "${dir_debug}linux"
+links: "${dir_zlib_deb}/lib${name_zlib}d.a"
+
+#profile release-linux
+binaryname: lib${name_bin}
+compiler: clang++
+buildtype: minsizerel
+buildpath: "${dir_release}linux"
+links: "${dir_zlib_rel}/lib${name_zlib}.a"
+postbuildaction: strip --strip-unneeded ${dir_release}linux/lib${name_bin}.a

@@ -1,0 +1,11 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "release-linux",
+            "type": "shell",
+            "command": "kalamake --compile /home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/project.kmake release-linux",
+            "group": "build"
+        },
+    ]
+}

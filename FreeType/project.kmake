@@ -1,0 +1,42 @@
+//Build script for use with kalamake. Read more at https://github.com/kalakit/kalamake
+
+#version 1.0
+
+#references
+name_bin: freetype
+dir_release: build/release-
+dir_debug: build/debug-
+
+#global
+compilerlauncher: ccache
+standard: c17
+binarytype: static
+sources: "src/base/ftbase.c", "src/base/ftinit.c", "src/base/ftsystem.c", "src/base/ftbitmap.c", "src/base/ftdebug.c", "src/base/ftmm.c", "src/autofit/autofit.c", "src/smooth/smooth.c", "src/raster/raster.c", "src/sfnt/sfnt.c", "src/truetype/truetype.c", "src/psaux/psaux.c", "src/psnames/psnames.c", "src/pshinter/pshinter.c", "src/cff/cff.c", "src/cache/ftcache.c", "src/gzip/ftgzip.c"
+headers: "include", "include/freetype", "src"
+defines: FT_CONFIG_MODULES_H=\"ftmodule.h\", FT2_BUILD_LIBRARY, FT_CONFIG_OPTION_SUBPIXEL_RENDERING, T1_CONFIG_OPTION_NO_AFM
+warninglevel: normal
+
+#profile debug-windows
+binaryname: ${name_bin}d
+compiler: clang-cl
+buildtype: debug
+buildpath: "${dir_debug}windows"
+
+#profile release-windows
+binaryname: ${name_bin}
+compiler: clang-cl
+buildtype: minsizerel
+buildpath: "${dir_release}windows"
+
+#profile debug-linux
+binaryname: lib${name_bin}d
+compiler: clang
+buildtype: debug
+buildpath: "${dir_debug}linux"
+
+#profile release-linux
+binaryname: lib${name_bin}
+compiler: clang
+buildtype: minsizerel
+buildpath: "${dir_release}linux"
+postbuildaction: strip --strip-unneeded ${dir_release}linux/lib${name_bin}.a
