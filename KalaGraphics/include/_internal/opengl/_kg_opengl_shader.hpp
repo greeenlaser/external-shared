@@ -5,32 +5,21 @@
 
 #pragma once
 
-#include "core_utils.hpp"
-
-namespace KalaGraphics::Internal::OpenGL
-{
-    class LIB_API OpenGL_Shader
-    {
-    public:
-        
-    };
-}
-
-/*
 #include <string>
 #include <array>
+#include <filesystem>
 
 #include "core_utils.hpp"
 #include "math_utils.hpp"
 
-#include "kw_opengl.hpp"
-#include "core/kw_registry.hpp"
+#include "core/kg_registry.hpp"
 
-namespace KalaWindow::OpenGL
+namespace KalaGraphics::Internal::OpenGL
 {
 	using std::string;
 	using std::string_view;
 	using std::array;
+	using std::filesystem::path;
 
 	using KalaHeaders::KalaMath::vec2;
 	using KalaHeaders::KalaMath::vec3;
@@ -39,8 +28,7 @@ namespace KalaWindow::OpenGL
 	using KalaHeaders::KalaMath::mat3;
 	using KalaHeaders::KalaMath::mat4;
 	
-	using KalaWindow::OpenGL::OpenGL_Context;
-	using KalaWindow::Core::KalaWindowRegistry;
+	using KalaGraphics::Core::KalaGraphicsRegistry;
 
 	enum class OpenGL_ShaderType
 	{
@@ -54,7 +42,7 @@ namespace KalaWindow::OpenGL
 	{
 		//either fill shader data or shader path,
 		//it picks data by default if both are filled
-		string shaderPath{};
+		path shaderPath{};
 
 		//either fill shader data or shader path,
 		//it picks data by default if both are filled
@@ -70,7 +58,7 @@ namespace KalaWindow::OpenGL
 	class LIB_API OpenGL_Shader
 	{
 	public:
-		static KalaWindowRegistry<OpenGL_Shader>& GetRegistry();
+		static KalaGraphicsRegistry<OpenGL_Shader>& GetRegistry();
 
 		//Toggle verbose logging. If true, then usually frequently updated runtime values like
 		//vertex, fragment and geometry shader compilation messages will dump their logs into the console.
@@ -80,7 +68,7 @@ namespace KalaWindow::OpenGL
 		//Create a new shader with up to three types of shader files.
 		//Geometry shaders are optional but vert and frag shader must always be filled
 		static OpenGL_Shader* Initialize(
-			OpenGL_Context* glContext,
+			uintptr_t glContext,
 			string_view shaderName,
 			const array<OpenGL_ShaderData, 3>& shaderData);
 
@@ -91,16 +79,16 @@ namespace KalaWindow::OpenGL
 
 		//Returns the global ID of this shader
 		u32 GetID() const;
+		//Returns the context ID of the context this shader uses
+		u32 GetContextID() const;
+
 		//Returns the OpenGL program ID of this shader
 		u32 GetProgramID() const;
-		
-		//Returns the OpenGL context of this shader
-		OpenGL_Context* GetGLContext() const;
 
 		//Returns shader data assigned to shader type
 		const string& GetShaderData(OpenGL_ShaderType targetType) const;
 		//Returns shader path assigned to shader type
-		const string& GetShaderPath(OpenGL_ShaderType targetType) const;
+		const path& GetShaderPath(OpenGL_ShaderType targetType) const;
 
 		u32 GetShaderID(OpenGL_ShaderType targetType) const;
 
@@ -129,13 +117,12 @@ namespace KalaWindow::OpenGL
 		string name{};
 
 		u32 ID{};
+		u32 contextID{};
+
 		u32 programID{};
-		
-		OpenGL_Context* glContext{};
 
 		OpenGL_ShaderData vertData{};
 		OpenGL_ShaderData fragData{};
 		OpenGL_ShaderData geomData{};
 	};
 }
-*/

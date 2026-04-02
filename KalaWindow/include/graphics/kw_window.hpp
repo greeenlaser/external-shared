@@ -73,7 +73,7 @@ namespace KalaWindow::Graphics
 	struct LIB_API WindowData
 	{
 		uintptr_t window{};
-		uintptr_t hdc{};
+		uintptr_t handle{};
 		uintptr_t hInstance{};
 		uintptr_t hMenu{};
 		uintptr_t wndProc{};
@@ -315,7 +315,6 @@ namespace KalaWindow::Graphics
 		//Calls the functional assigned with SetCleanExternalContent if it was assigned
 		void CloseWindow();
 
-		//Do not destroy manually, erase from registry instead
 		~ProcessWindow();
 	private:
 #ifdef _WIN32
