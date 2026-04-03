@@ -14,7 +14,7 @@
 
 #include "core/kg_registry.hpp"
 
-namespace KalaGraphics::Object
+namespace KalaGraphics::Graphics
 {
     using KalaHeaders::KalaMath::vec3;
     using KalaHeaders::KalaMath::vec4;
@@ -72,11 +72,11 @@ namespace KalaGraphics::Object
         //Single draw call
         virtual void Update() = 0;
 
-        ~Model();
+        virtual ~Model() = default;
     protected:
         bool isInitialized{};
 
-        string modelName{};
+        string name{};
 
         Transform3D transform{};
 

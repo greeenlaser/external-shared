@@ -7,7 +7,7 @@
 
 #include "core_utils.hpp"
 
-namespace KalaGraphics::Core
+namespace KalaGraphics::Graphics
 {
     class LIB_API Texture
     {
