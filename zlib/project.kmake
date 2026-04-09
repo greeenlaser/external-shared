@@ -32,10 +32,12 @@ binaryname: lib${name_bin}d
 compiler: clang
 buildtype: debug
 buildpath: "${dir_debug}linux"
+defines: _GNU_SOURCE
 
 #profile release-linux
 binaryname: lib${name_bin}
 compiler: clang
 buildtype: minsizerel
 buildpath: "${dir_release}linux"
+defines: _GNU_SOURCE
 postbuildaction: strip --strip-unneeded ${dir_release}linux/lib${name_bin}.a

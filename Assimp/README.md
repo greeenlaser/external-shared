@@ -2,6 +2,8 @@
 
 This project was built with [KalaMake](https://github.com/kalakit/kalamake). Use the `.kmake` and the `zlib` static library with its includes and the kalamake CLI to compile [Assimp](https://github.com/assimp/assimp) from source.
 
+Copy `config.h` and `revision.h` inside `include/assimp/`
+
 You should also assign these values in your project at runtime
 ```
 //general
