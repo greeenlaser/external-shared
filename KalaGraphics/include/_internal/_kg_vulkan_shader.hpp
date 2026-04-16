@@ -7,9 +7,9 @@
 
 #include "core_utils.hpp"
 
-namespace KalaGraphics::Internal::OpenGL
+namespace KalaGraphics::Internal
 {
-    class LIB_API OpenGL_Framebuffer
+    class LIB_API Vulkan_Shader
     {
     public:
         
