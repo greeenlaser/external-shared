@@ -1,0 +1,20 @@
+[
+    {
+        "directory": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20",
+        "command": "clang++ -std=c++20 -DNDEBUG -g0 -O2 -I/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/_kh -I/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/include -c /home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/src/main.cpp -o /home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/build/linux-release/obj/main.o",
+        "file": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/src/main.cpp",
+        "output": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/build/linux-release/obj/main.o"
+    },
+    {
+        "directory": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20",
+        "command": "clang++ -std=c++20 -DNDEBUG -g0 -O2 -I/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/_kh -I/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/include -c /home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/src/ks_chacha20.cpp -o /home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/build/linux-release/obj/ks_chacha20.o",
+        "file": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/src/ks_chacha20.cpp",
+        "output": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/build/linux-release/obj/ks_chacha20.o"
+    },
+    {
+        "directory": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20",
+        "command": "clang++ -std=c++20 -DNDEBUG -g0 -O2 -I/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/_kh -I/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/include -c /home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/src/ks_poly1305_donna.cpp -o /home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/build/linux-release/obj/ks_poly1305_donna.o",
+        "file": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/src/ks_poly1305_donna.cpp",
+        "output": "/home/greenlaser/Documents/_cpp/kalaserver/_external_shared/TLS/chacha20/build/linux-release/obj/ks_poly1305_donna.o"
+    }
+]
