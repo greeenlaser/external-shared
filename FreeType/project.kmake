@@ -18,13 +18,13 @@ warninglevel: normal
 
 #profile debug-windows
 binaryname: ${name_bin}d
-compiler: clang-cl
+compiler: clang
 buildtype: debug
 buildpath: "${dir_debug}windows"
 
 #profile release-windows
 binaryname: ${name_bin}
-compiler: clang-cl
+compiler: clang
 buildtype: minsizerel
 buildpath: "${dir_release}windows"
 
