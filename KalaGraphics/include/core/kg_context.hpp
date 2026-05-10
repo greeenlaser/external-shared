@@ -30,42 +30,42 @@ namespace KalaGraphics::Core
     using u8 = uint8_t;
     using u32 = uint32_t;
 
-    enum class FramebufferSize : u8
+    enum class ViewportSize : u8
     {
-        FB_INVALID = 0u,
+        VP_INVALID = 0u,
 
         //4:3
 
-        FB_640_480 = 1u,
-        FB_800_600 = 2u,
-        FB_1024_768 = 3u,
-        FB_1600_1200 = 4u,
+        VP_640_480 = 1u,
+        VP_800_600 = 2u,
+        VP_1024_768 = 3u,
+        VP_1600_1200 = 4u,
 
         //16:9
 
-        FB_1280_720 = 5u,
-        FB_1600_900 = 6u,
-        FB_1920_1080 = 7u,
-        FB_2560_1440 = 8u,
-        FB_3840_2160 = 9u,
+        VP_1280_720 = 5u,
+        VP_1600_900 = 6u,
+        VP_1920_1080 = 7u,
+        VP_2560_1440 = 8u,
+        VP_3840_2160 = 9u,
 
         //16:10
 
-        FB_1280_800 = 10u,
-        FB_1680_1050 = 11u,
-        FB_1920_1200 = 12u,
-        FB_2560_1600 = 13u,
+        VP_1280_800 = 10u,
+        VP_1680_1050 = 11u,
+        VP_1920_1200 = 12u,
+        VP_2560_1600 = 13u,
 
         //21:9
 
-        FB_2560_1080 = 14u,
-        FB_3440_1440 = 15u,
-        FB_5120_2160 = 16u,
+        VP_2560_1080 = 14u,
+        VP_3440_1440 = 15u,
+        VP_5120_2160 = 16u,
 
         //32:9
 
-        FB_3840_1080 = 17u,
-        FB_5120_1440 = 18u
+        VP_3840_1080 = 17u,
+        VP_5120_1440 = 18u
     };
 
     enum class VSyncState : u8
@@ -83,14 +83,9 @@ namespace KalaGraphics::Core
         VSYNC_OFF = 3u
 	};
 
-    struct LIB_API WindowContextData
+    struct LIB_API GraphicsContextData
     {
         u32 windowID{};
-
-        bool isFramebufferDynamic = true;
-        FramebufferSize fbSize = FramebufferSize::FB_1920_1080;
-
-        VSyncState vsyncState = VSyncState::VSYNC_ON_TRIPLE_BUFFERED;
 
 #ifdef _WIN32
         uintptr_t context_window{};
@@ -102,29 +97,67 @@ namespace KalaGraphics::Core
         VkSurfaceKHR context_vk_surface{};
     };
 
-    class LIB_API WindowContext
+    struct LIB_API ViewportData
+    {
+        //does the viewport dynamically scale with the 
+        bool isDynamicViewport = true;
+
+        //where the viewport starts at, relative to top-left corner
+        vec2 offset{};
+
+        //min and max depth
+        vec2 depth = vec2(0, 1);
+
+        //pushes the drawable area down and right if x and y are positive
+        vec2 viewportOffset{};
+
+        //cuts everything outside of this area,
+        //gpu can only draw clear color there
+        vec2 scissorSize{};
+
+        //static viewport size
+        ViewportSize vpSize = ViewportSize::VP_1920_1080;
+    };
+
+    class LIB_API GraphicsContext
     {
     public:
-        static KalaGraphicsRegistry<WindowContext>& GetRegistry();
+        static KalaGraphicsRegistry<GraphicsContext>& GetRegistry();
 
         //Sets the global vk instance
         static void SetVKInstance(VkInstance vk_instance);
         static VkInstance GetVKInstance();
 
-        static bool IsValidWindowID(u32 windowID);
-
-        static string_view GetFramebufferName(FramebufferSize fbSize);
-        static vec2 GetFramebufferSize(FramebufferSize fbSize);
-
         //Initialize a new window context
-        static WindowContext* Initialize(const WindowContextData& context);
-
-        bool IsInitialized() const;
+        static GraphicsContext* Initialize(const GraphicsContextData& context);
 
         u32 GetID() const;
+        u32 GetVulkanContextID() const;
 
-        void SetVSyncState(VSyncState newValue);
         VSyncState GetVSyncState() const;
+        void SetVSyncState(VSyncState newValue);
+
+        static string_view GetStaticViewportName(ViewportSize vpSize);
+        static vec2 GetStaticViewportSizeValue(ViewportSize vpSize);
+
+        //Sets static viewport size, only applied if dynamic viewport is disabled
+        vec2 GetStaticViewportSize() const;
+        void SetStaticViewportSize(ViewportSize fbSize);
+
+        //If true then viewport resizes dynamically with the true window size
+        bool IsDynamicViewport() const;
+        void SetDynamicViewportState(bool newValue);
+
+        vec2 GetDepth() const;
+        void SetDepth(vec2 newDepth);
+
+        vec2 GetViewportOffset() const;
+        void SetViewportOffset(vec2 newSize);
+
+        vec2 GetScissorSize() const;
+        void SetScissorSize(vec2 newOffset);
+    
+        const GraphicsContextData& GetGraphicsContextData() const;
 
         //Regular update - single draw call
         void Update();
@@ -132,31 +165,16 @@ namespace KalaGraphics::Core
         //Called to trigger resize events - single draw call
         void ResizeUpdate();
 
-        //If true then framebuffer resizes dynamically with the true window size
-        void SetDynamicFramebufferState(bool newValue);
-        bool IsDynamicFramebuffer() const;
+        void Destroy();
 
-        //Sets static framebuffer size, only applied if dynamic framebuffer is disabled
-        void SetStaticFramebufferSize(FramebufferSize fbSize);
-        vec2 GetStaticFramebufferSize() const;
-
-        //Set the internal value of window size that vulkan and framebuffer require,
-        //does not actually update window size, KalaGraphics doesnt control it,
-        //should always be called after the actual window is resized
-        void SetWindowSize(vec2 newSize);
-        vec2 GetWindowSize() const;
-    
-        WindowContextData& GetWindowContextData();
-
-        //Shuts down all resources for this context
-        void Shutdown();
+        ~GraphicsContext();
     private:
-        bool isInitialized{};
-
         u32 ID{};
+        u32 vulkanContextID{};
 
-        vec2 windowSize{};
+        VSyncState vsyncState = VSyncState::VSYNC_ON_TRIPLE_BUFFERED;
 
-        WindowContextData context{};
+        GraphicsContextData contextData{};
+        ViewportData vpData{};
     };
 }

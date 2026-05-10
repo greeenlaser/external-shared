@@ -3068,7 +3068,7 @@ namespace KalaHeaders::KalaMath
 	
 	//Updates target combined pos, rot and size relative to target local and parent combined values,
 	//if parent is identity then target combined is target world
-	inline void combine(
+	inline void combine3d(
 		Transform3D& target,
 		const Transform3D& parent)
 	{
@@ -3129,7 +3129,7 @@ namespace KalaHeaders::KalaMath
 	
 	//Incrementally moves over time,
 	//if parent is identity then target combined is target world
-	inline constexpr void addpos(
+	inline constexpr void addpos3d(
 		Transform3D& target,
 		const Transform3D& parent,
 		PosTarget type,
@@ -3154,11 +3154,11 @@ namespace KalaHeaders::KalaMath
 		case PosTarget::POS_LOCAL: target.pos_local = pos_clamped; break;
 		}
 
-		combine(target, parent);
+		combine3d(target, parent);
 	}
 	//Snaps to given position,
 	//if parent is identity then target combined is target world
-	inline constexpr void setpos(
+	inline constexpr void setpos3d(
 		Transform3D& target,
 		const Transform3D& parent,
 		PosTarget type,
@@ -3179,9 +3179,9 @@ namespace KalaHeaders::KalaMath
 		case PosTarget::POS_LOCAL: target.pos_local = pos_clamped; break;
 		}
 
-		combine(target, parent);
+		combine3d(target, parent);
 	}
-	inline constexpr vec3 getpos(
+	inline constexpr vec3 getpos3d(
 		const Transform3D& target,
 		PosTarget type)
 	{
@@ -3240,13 +3240,13 @@ namespace KalaHeaders::KalaMath
 		case RotTarget::ROT_LOCAL: target.rot_local = q; break;
 		}
 		
-		combine(target, parent);
+		combine3d(target, parent);
 	}
 	
 	//Takes in rotation in euler (degrees) and incrementally rotates over time,
 	//if parent is identity then target combined is target world,
 	//clamps internally between -360 and 360, you're expected to wrap according to your needs on your end
-	inline constexpr void addrot(
+	inline constexpr void addrot3d(
 		Transform3D& target,
 		const Transform3D& parent,
 		RotTarget type,
@@ -3273,12 +3273,12 @@ namespace KalaHeaders::KalaMath
 		case RotTarget::ROT_LOCAL: target.rot_local = toquat(current); break;
 		}
 
-		combine(target, parent);
+		combine3d(target, parent);
 	}
 	//Takes in rotation in euler (degrees) and snaps to given rotation,
 	//if parent is identity then target combined is target world,
 	//clamps internally between -360 and 360, you're expected to wrap according to your needs on your end
-	inline constexpr void setrot(
+	inline constexpr void setroteuler(
 		Transform3D& target,
 		const Transform3D& parent,
 		RotTarget type,
@@ -3294,11 +3294,11 @@ namespace KalaHeaders::KalaMath
 		case RotTarget::ROT_LOCAL: target.rot_local = toquat(rot_new); break;
 		}
 
-		combine(target, parent);
+		combine3d(target, parent);
 	}
 	//Takes in rotation in quaternion and snaps to given rotation,
 	//if parent is identity then target combined is target world
-	inline constexpr void setrot(
+	inline constexpr void setrotquat(
 		Transform3D& target,
 		const Transform3D& parent,
 		RotTarget type,
@@ -3316,7 +3316,7 @@ namespace KalaHeaders::KalaMath
 		case RotTarget::ROT_LOCAL: target.rot_local = rot_clamped; break;
 		}
 			
-		combine(target, parent);
+		combine3d(target, parent);
 	}
 	//Returns rotation in euler (degrees)
 	inline constexpr vec3 getroteuler(
@@ -3369,7 +3369,7 @@ namespace KalaHeaders::KalaMath
 		RotTarget type,
 		float degrees)
 	{
-		addrot(target, parent, type, {degrees, 0, 0});
+		addrot3d(target, parent, type, {degrees, 0, 0});
 	}
 	//Increments yaw over time with degrees,
 	//if parent is identity then target combined is target world
@@ -3379,7 +3379,7 @@ namespace KalaHeaders::KalaMath
 		RotTarget type,
 		float degrees)
 	{
-		addrot(target, parent, type, {0, degrees, 0});
+		addrot3d(target, parent, type, {0, degrees, 0});
 	}
 	//Increments roll over time with degrees,
 	//if parent is identity then target combined is target world
@@ -3389,7 +3389,7 @@ namespace KalaHeaders::KalaMath
 		RotTarget type,
 		float degrees)
 	{
-		addrot(target, parent, type, {0, 0, degrees});
+		addrot3d(target, parent, type, {0, 0, degrees});
 	}
 	
 	//Snaps pitch to given degrees,
@@ -3402,7 +3402,7 @@ namespace KalaHeaders::KalaMath
 	{
 		vec3 e = getroteuler(target, type);
 		e.x = degrees;
-		setrot(target, parent, type, e);
+		setroteuler(target, parent, type, e);
 	}
 	//Snaps pitch to given degrees,
 	//if parent is identity then target combined is target world
@@ -3414,7 +3414,7 @@ namespace KalaHeaders::KalaMath
 	{
 		vec3 e = getroteuler(target, type);
 		e.y = degrees;
-		setrot(target, parent, type, e);
+		setroteuler(target, parent, type, e);
 	}
 	//Snaps pitch to given degrees,
 	//if parent is identity then target combined is target world
@@ -3426,7 +3426,7 @@ namespace KalaHeaders::KalaMath
 	{
 		vec3 e = getroteuler(target, type);
 		e.z = degrees;
-		setrot(target, parent, type, e);
+		setroteuler(target, parent, type, e);
 	}
 	
 	//Returns pitch as degrees for current transform
@@ -3453,7 +3453,7 @@ namespace KalaHeaders::KalaMath
 	
 	//Incrementally scales over time,
 	//if parent is identity then target combined is target world
-	inline constexpr void addsize(
+	inline constexpr void addsize3d(
 		Transform3D& target,
 		const Transform3D& parent,
 		SizeTarget type,
@@ -3478,11 +3478,11 @@ namespace KalaHeaders::KalaMath
 		case SizeTarget::SIZE_LOCAL: target.size_local = size_clamped; break;
 		}
 
-		combine(target, parent);
+		combine3d(target, parent);
 	}
 	//Snaps to given scale,
 	//if parent is identity then target combined is target world
-	inline constexpr void setsize(
+	inline constexpr void setsize3d(
 		Transform3D& target,
 		const Transform3D& parent,
 		SizeTarget type,
@@ -3503,10 +3503,10 @@ namespace KalaHeaders::KalaMath
 		case SizeTarget::SIZE_LOCAL: target.size_local = size_clamped; break;
 		}
 
-		combine(target, parent);
+		combine3d(target, parent);
 	}
-	inline constexpr vec3 getsize(
-		Transform3D& target,
+	inline constexpr vec3 getsize3d(
+		const Transform3D& target,
 		SizeTarget type)
 	{
 		switch (type)

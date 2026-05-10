@@ -300,15 +300,13 @@ namespace KalaWindow::Graphics
 		u32 GetInputID() const;
 		void SetInputID(u32 newValue);
 		
-		u32 GetContextID() const;
-		void SetContextID(u32 newValue);
+		u32 GetGraphicsContextID() const;
+		void SetGraphicsContextID(u32 newValue);
 		
 		u32 GetMenuBarID() const;
 		void SetMenuBarID(u32 newValue);
 
-		//Clean up the content of this window and erase it from its registry.
-		//Calls the functional assigned with SetCleanExternalContent if it was assigned
-		void CloseWindow();
+		void Destroy();
 
 		~ProcessWindow();
 	private:
@@ -352,7 +350,7 @@ namespace KalaWindow::Graphics
 		vector<string> lastDraggedFiles{}; //The path of the last files which were dragged onto this window
 
 		u32 inputID{};
-		u32 contextID{};
+		u32 graphicsContextID{};
 		u32 menuBarID{};
 		
 		WindowData windowData{};

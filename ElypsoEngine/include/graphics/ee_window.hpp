@@ -40,18 +40,19 @@ namespace ElypsoEngine::Graphics
 
         u32 GetID() const;
         //Returns the KalaWindow process window ID
-        u32 GetWindowID() const;
+        u32 GetWindowContextID() const;
         //Returns the KalaGraphics context ID
-        u32 GetContextID() const;
+        u32 GetGraphicsContextID() const;
         
         //Single window update
         void Update();
 
-        //Shut down all window content
-        void Shutdown();
+        void Destroy();
+
+        ~EngineWindow();
     private:
         u32 ID{};
-        u32 windowID{};
-        u32 contextID{};
+        u32 windowContextID{};
+        u32 graphicsContextID{};
     };
 }

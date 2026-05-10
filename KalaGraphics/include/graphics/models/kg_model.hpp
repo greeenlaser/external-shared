@@ -35,22 +35,16 @@ namespace KalaGraphics::Graphics
     public:
         static KalaGraphicsRegistry<Model>& GetRegistry();
 
-        bool SetName(string_view newName);
+        void SetName(string_view newName);
         const string& GetName() const;
 
         vector<Vertex>& GetVertices();
         vector<u32>& GetIndices();
 
         u32 GetID() const;
-        u32 GetContextID() const;
-
-        //Hot-swap context at runtime,
-        //Leave shaderID and backendID if you want a new backend for this model
-        void SetBackend(
-            u32 contextID, 
-            u32 shaderID = 0,
-            u32 backendID = 0);
-        u32 GetBackendID() const;
+        u32 GetGraphicsContextID() const;
+        u32 GetVulkanContextID() const;
+        u32 GetShaderID() const;
 
         void SetColor(const vec3& newColor);
         const vec3& GetColor() const;
@@ -67,7 +61,8 @@ namespace KalaGraphics::Graphics
         u32 ID{};
 
         u32 contextID{};
-        u32 backendID{};
+        u32 vulkanID{};
+        u32 shaderID{};
 
 		vector<Vertex> vertices{};
 		vector<u32> indices{};
