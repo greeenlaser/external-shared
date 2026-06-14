@@ -290,7 +290,6 @@ namespace KalaWindow::Graphics
 		void SetResizeCallback(function<void()> newValue);
 		void ResizeCallback();
 
-		//Clean up the external content of this window before its own data is cleaned
 		void SetShutdownCallback(function<void()> newValue);
 
 		void SetWindowData(const WindowData& newWindowStruct);
