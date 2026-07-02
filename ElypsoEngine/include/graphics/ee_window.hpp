@@ -34,18 +34,16 @@ namespace ElypsoEngine::Graphics
         static EngineWindow* Initialize(
             string_view windowTitle = "UNASSIGNED TITLE",
             vec2 pos = 800,
-            vec2 size = 800,
-            WindowState state = WindowState::WINDOW_NORMAL,
-            WindowMode mode = WindowMode::WINDOWMODE_WINDOWED);
+            vec2 size = { 800, 600 },
+            EngineWindow* parent = nullptr);
 
         u32 GetID() const;
         //Returns the KalaWindow process window ID
         u32 GetWindowContextID() const;
         //Returns the KalaGraphics context ID
         u32 GetGraphicsContextID() const;
-        
-        //Single window update
-        void Update();
+
+        const vector<u32>& GetSceneIDs() const;
 
         void Destroy();
 
@@ -54,5 +52,7 @@ namespace ElypsoEngine::Graphics
         u32 ID{};
         u32 windowContextID{};
         u32 graphicsContextID{};
+
+        vector<u32> sceneIDs{};
     };
 }
