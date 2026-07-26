@@ -1,0 +1,33 @@
+#version 1.0
+
+#references
+name_bin: spirv-reflect
+
+#global
+compilerlauncher: ccache
+compiler: clang
+binarytype: static
+standard: c17
+sources: "*.c"
+headers: "."
+warninglevel: normal
+
+#profile debug-windows
+binaryname: ${name_bin}d
+buildtype: debug
+buildpath: "debug"
+
+#profile release-windows
+binaryname: ${name_bin}
+buildtype: minsizerel
+buildpath: "release"
+
+#profile debug-linux
+binaryname: lib${name_bin}d
+buildtype: debug
+buildpath: "debug"
+
+#profile release-linux
+binaryname: lib${name_bin}
+buildtype: minsizerel
+buildpath: "release"

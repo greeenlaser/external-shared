@@ -31,15 +31,12 @@ namespace KalaWindow::Core
 		//crash log file at exe root if program crashes.
 		//Assign the program name that will be displayed in the crash log,
 		//and define __NODUMP__ if you want to disable .dmp file creation
-		static void Initialize(string_view programName);
+		static void Initialize(string&& programName);
 
 		static bool IsInitialized();
-
-		//Pushes a string of up to max allowed characters characters to the crash log ring buffer.
-		//Stores up to 10 messages and overwrites the oldest entries as new ones arrive.
-		//Safe for multithreaded pushing.
-		static void AppendToCrashLog(string_view message);
 	private:
-		static void SetForceCloseContent(string_view title, string_view reason);
+		static void SetForceCloseContent(
+			string&& title, 
+			string&& reason);
 	};
 }

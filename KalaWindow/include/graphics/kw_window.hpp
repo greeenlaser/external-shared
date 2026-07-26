@@ -129,7 +129,7 @@ namespace KalaWindow::Graphics
 		//Set the context to your preferred dpi state to modify how
 		//window dpi state affects performance and quality of the framebuffer
 		static ProcessWindow* Initialize(
-			string_view title,
+			string&& title,
 			vec2 pos = 600,
 			vec2 size = { 800, 600 },
 			ProcessWindow* parentWindow = nullptr,
@@ -141,12 +141,12 @@ namespace KalaWindow::Graphics
 		void Update();
 
 		//Assigns paths of last dragged files. This is called through WM_DROPFILES on windows.
-		void SetLastDraggedFiles(const vector<string>& files);
+		void SetLastDraggedFiles(vector<string>&& files);
 		const vector<string>& GetLastDraggedFiles() const;
 		//Clears paths to last file paths that were dragged onto window
 		void ClearLastDraggedFiles();
 
-		void SetTitle(string_view newTitle) const;
+		void SetTitle(string&& newTitle) const;
 		string GetTitle() const;
 
 		//Set executable icon. Loaded via the texture framework.
@@ -164,7 +164,7 @@ namespace KalaWindow::Graphics
 		//The first parameter requires an ID to the texture.
 		void SetTaskbarOverlayIcon(
 			u32 texture,
-			string_view tooltip = "") const;
+			string&& tooltip = "") const;
 		u32 GetTaskbarOverlayIcon() const;
 		//Clears the current overlay icon and its tooltip
 		void ClearTaskbarOverlayIcon() const;
@@ -174,7 +174,7 @@ namespace KalaWindow::Graphics
 
 #ifdef _WIN32
 		//Set Windows window rounding state. Has no effect in Linux.
-		void SetWindowRounding(WindowRounding roundState) const;
+		void SetWindowRoundingState(WindowRounding roundState) const;
 		WindowRounding GetWindowRoundingState() const;
 #endif
 
@@ -286,12 +286,12 @@ namespace KalaWindow::Graphics
 			u8 maxProgress) const;
 #endif
 
-		void SetResizeCallback(function<void()> newValue);
+		void SetResizeCallback(function<void()>&& newValue);
 		void ResizeCallback();
 
-		void SetShutdownCallback(function<void()> newValue);
+		void SetShutdownCallback(function<void()>&& newValue);
 
-		void SetWindowData(const WindowData& newWindowStruct);
+		void SetWindowData(WindowData&& newWindowStruct);
 		const WindowData& GetWindowData() const;
 
 		//
@@ -311,21 +311,22 @@ namespace KalaWindow::Graphics
 
 		~ProcessWindow();
 	private:
-		bool isWindowHovered = false;      //If true, then this window is currently being hovered by the cursor.
+		bool isWindowHovered{};            //If true, then this window is currently being hovered by the cursor.
 		bool isWindowFocusRequired = true; //If true, then this window will not update unless selected.
-		bool isIdle = false;               //Toggled dynamically by isfocused, isminimized and isvisible checks.
-		bool isResizing = false;           //If true, then this window is currently being resized
-		bool shutdownBlockState = false;   //Prevents Windows from shutting off or logging off if this is true so you can save your data
+		bool isIdle{};                     //Toggled dynamically by isfocused, isminimized and isvisible checks.
+		bool isResizing{};                 //If true, then this window is currently being resized
+		bool shutdownBlockState{};         //Prevents Windows from shutting off or logging off if this is true so you can save your data
 
-#ifdef _WIN32
 		u32 parentID = UINT32_MAX;
 		vector<u32> childIDs{};
-#else
-		bool isFocused = false;
-		bool isVisible = false;
+
+#ifdef __linux__
+		bool isFocused{};
+		bool isVisible{};
+		bool isMinimized{};
 		
-		void UpdateFullscreenState();
-		bool isFullscreen = false;
+		void UpdateFullscreenAndMinimizedState();
+		bool isFullscreen{};
 
 		vec2 pos{};
 		vec2 size{};

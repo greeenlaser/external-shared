@@ -78,18 +78,28 @@ namespace KalaWindow::Graphics
 
 		uintptr_t xim{};
 
+		int xiErrorBase{};
 		int xiOpcode{};
 
 		uintptr_t atom_utf8{};
+
+		uintptr_t atom_cardinal{};
+
+		uintptr_t atom_net_active_window{};
+				
+		uintptr_t atom_net_wm_window_type{};
+		uintptr_t atom_net_wm_window_opacity{};
 
 		uintptr_t atom_net_wm_name{};
 		uintptr_t atom_net_wm_pid{};
 
 		uintptr_t atom_net_wm_state{};
+		uintptr_t atom_net_wm_state_hidden{};
 		uintptr_t atom_net_wm_state_fullscreen{};
 		uintptr_t atom_net_wm_state_vertical{};
 		uintptr_t atom_net_wm_state_horizontal{};
 		uintptr_t atom_net_wm_state_above{};
+		uintptr_t atom_net_wm_state_skip_taskbar{};
 
 		uintptr_t atom_wm_delete{};
 	};
@@ -103,7 +113,7 @@ namespace KalaWindow::Graphics
 		static void SetVerboseLoggingState(bool newState);
 		static bool IsVerboseLoggingEnabled();
 
-		static bool Initialize();
+		static void Initialize();
 		static bool IsInitialized();
 
 #ifdef __linux__
@@ -122,8 +132,8 @@ namespace KalaWindow::Graphics
 		//Display any kind of a popup on screen for info that should be shown immediately..
 		//Requires zenity on X11 and Wayland.
 		static PopupResult CreatePopup(
-			string_view title,
-			string_view message,
+			string&& title,
+			string&& message,
 			PopupAction action,
 			PopupType type);
 
@@ -136,15 +146,15 @@ namespace KalaWindow::Graphics
 
 		//Create a notification that shows up on the screen
 		static void CreateNotification(
-			string_view title,
-			string_view message);
+			string&& title,
+			string&& message);
 
 		//Play a system sound once of the chosen type.
 		//Requires libcanberra on X11 and Wayland
 		static void PlaySystemSound(SoundType type);
 
 		//Places selected string to clipboard
-		static void SetClipboardText(string_view text);
+		static void SetClipboardText(string&& text);
 		//Returns string from clipboard
 		static string GetClipboardText();
 	};
