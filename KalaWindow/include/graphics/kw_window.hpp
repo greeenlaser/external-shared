@@ -21,6 +21,11 @@
 
 #include "core/kw_registry.hpp"
 
+namespace KalaWindow::Core
+{
+	class Input;
+};
+
 namespace KalaWindow::Graphics
 {
 	constexpr f32 MIN_WINDOW_SIZE = 1.0f;
@@ -121,6 +126,8 @@ namespace KalaWindow::Graphics
 	class LIB_API ProcessWindow
 	{
 	friend class KalaWindow::Core::MessageLoop;
+	friend class KalaWindow::Core::Input;
+	friend class VulkanContext;
 	public:
 		static KalaWindowRegistry<ProcessWindow>& GetRegistry();
 
@@ -136,6 +143,12 @@ namespace KalaWindow::Graphics
 			DpiContext context = DpiContext::DPI_SYSTEM_AWARE);
 
 		u32 GetID() const;
+		u32 GetInputID() const;
+		u32 GetGraphicsContextID() const;
+		
+#ifdef _WIN32
+		u32 GetMenuBarID() const;
+#endif
 
 		//Draws the window, handles messages for active frame
 		void Update();
@@ -294,19 +307,6 @@ namespace KalaWindow::Graphics
 		void SetWindowData(WindowData&& newWindowStruct);
 		const WindowData& GetWindowData() const;
 
-		//
-		// WINDOW CONTENT
-		//
-
-		u32 GetInputID() const;
-		void SetInputID(u32 newValue);
-		
-		u32 GetGraphicsContextID() const;
-		void SetGraphicsContextID(u32 newValue);
-		
-		u32 GetMenuBarID() const;
-		void SetMenuBarID(u32 newValue);
-
 		void Destroy();
 
 		~ProcessWindow();
@@ -350,7 +350,9 @@ namespace KalaWindow::Graphics
 
 		u32 inputID{};
 		u32 graphicsContextID{};
+#ifdef _WIN32
 		u32 menuBarID{};
+#endif
 		
 		WindowData windowData{};
 
