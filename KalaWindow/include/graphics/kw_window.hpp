@@ -28,7 +28,7 @@ namespace KalaWindow::Core
 
 namespace KalaWindow::Graphics
 {
-	constexpr f32 MIN_WINDOW_SIZE = 1.0f;
+	constexpr f32 MIN_WINDOW_SIZE = 100.0f;
 	constexpr f32 MAX_WINDOW_SIZE = 10000.0f;
 
 	using std::string;
@@ -36,6 +36,7 @@ namespace KalaWindow::Graphics
 	using std::function;
 	using std::vector;
 	using std::array;
+	using std::pair;
 
 	using KalaHeaders::KalaMath::vec2;
 
@@ -150,101 +151,82 @@ namespace KalaWindow::Graphics
 		u32 GetMenuBarID() const;
 #endif
 
-		//Draws the window, handles messages for active frame
+		//Draws the window, handles messages for active frame,
+		//only handles idle state on X11,
+		//you must call message loop update before calling per-window update on X11
 		void Update();
 
+		const vector<string>& GetLastDraggedFiles() const;
 		//Assigns paths of last dragged files. This is called through WM_DROPFILES on windows.
 		void SetLastDraggedFiles(vector<string>&& files);
-		const vector<string>& GetLastDraggedFiles() const;
 		//Clears paths to last file paths that were dragged onto window
 		void ClearLastDraggedFiles();
 
-		void SetTitle(string&& newTitle) const;
 		string GetTitle() const;
-
-		//Set executable icon. Loaded via the texture framework.
-		//The first parameter requires an ID to the texture.
-		void SetIcon(u32 texture) const;
-		//Returns icon ID (Texture object ID)
-		u32 GetIcon() const;
-		//Clears the current executable icon
-		void ClearIcon() const;
-
-		//Set overlay icon and optional tooltip. Loaded via the texture framework.
-		//The overlay icon is shown in the task bar in the bottom right corner of the exe icon,
-		//the tooltip is what text appears if you hover over it.
-		//The overlay icon must be exactly 16x16px in size.
-		//The first parameter requires an ID to the texture.
-		void SetTaskbarOverlayIcon(
-			u32 texture,
-			string&& tooltip = "") const;
-		u32 GetTaskbarOverlayIcon() const;
-		//Clears the current overlay icon and its tooltip
-		void ClearTaskbarOverlayIcon() const;
+		void SetTitle(string&& newTitle) const;
 
 		//Bring this window to the foreground and make it focused
 		void BringToFocus();
 
+		//X11 does not have rounding state logic
 #ifdef _WIN32
-		//Set Windows window rounding state. Has no effect in Linux.
-		void SetWindowRoundingState(WindowRounding roundState) const;
 		WindowRounding GetWindowRoundingState() const;
+		void SetWindowRoundingState(WindowRounding roundState) const;
 #endif
 
-		//Set window size
-		void SetSize(vec2 newSize);
 		vec2 GetSize() const;
+		void SetSize(vec2 newSize);
 
-		//Set full window size (including borders), maps to client rect size on X11
-		void SetOuterSize(vec2 newSize);
+		//X11 does not expose outer size reliably
+#ifdef _WIN32
 		vec2 GetOuterSize() const;
+		void SetOuterSize(vec2 newSize);
+#endif
 
-		//Set window position
-		void SetPosition(vec2 newPos);
-		vec2 GetPosition();
-
-		void SetMaxSize(vec2 newMaxSize);
 		vec2 GetMaxSize() const;
+		void SetMaxSize(vec2 newMaxSize);
 
-		void SetMinSize(vec2 newMinSize);
 		vec2 GetMinSize() const;
+		void SetMinSize(vec2 newMinSize);
+
+		vec2 GetPosition();
+		void SetPosition(vec2 newPos);
 
 		//If true, then this window is always on top of other windows
+		bool IsAlwaysOnTop() const;		
 		void SetAlwaysOnTopState(bool state);
-		bool IsAlwaysOnTop() const;
 
 		//If true, then this shows the outer frame and can be resized
+		bool IsResizable() const;		
 		void SetResizableState(bool state);
-		bool IsResizable() const;
 
 #ifdef _WIN32
 		//If true, then this window shows its top bar
+		bool IsTopBarEnabled() const;		
 		void SetTopBarState(bool state) const;
-		bool IsTopBarEnabled() const;
 
 		//If true, then this window has a functional and visible minimize button
-		void SetMinimizeButtonState(bool state) const;
 		bool IsMinimizeButtonEnabled() const;
+		void SetMinimizeButtonState(bool state) const;
 
 		//If true, then this window has a functional and visible maximize button
-		void SetMaximizeButtonState(bool state) const;
 		bool IsMaximizeButtonEnabled() const;
+		void SetMaximizeButtonState(bool state) const;
 
 		//If true, then this window has a functional close button.
 		//Close button won't be grayed out or won't stop rendering due to Windows limits
-		void SetCloseButtonState(bool state) const;
 		bool IsCloseButtonEnabled() const;
+		void SetCloseButtonState(bool state) const;
 
 		//If false, then minimize, maximize, close buttons and the logo are hidden.
-		void SetSystemMenuState(bool state) const;
 		bool IsSystemMenuEnabled() const;
+		void SetSystemMenuState(bool state) const;
 
-		//Set window opacity/transparency. Internally clamped between 0.0f and 1.0f
-		void SetOpacity(float alpha) const;
 		float GetOpacity() const;
+		void SetOpacity(float alpha) const;
 #else
-		void SetWindowClass(string_view newValue);
-		string GetWindowClass() const;
+		pair<string, string> GetWindowClass() const;
+		void SetWindowClass(string&& newValue);
 #endif
 
 		//Returns true if one of these is true:
@@ -265,24 +247,22 @@ namespace KalaWindow::Graphics
 		bool IsMinimized() const;
 		//Returns false if this window is not rendered but also not minimized
 		bool IsVisible() const;
-
-		//Called internally in message loop
-		void SetResizingState(bool newState);
+		//Returns true if this window is currently being resized
 		bool IsResizing() const;
 
 		//Can assign the window mode to one of the supported types
-		void SetWindowMode(WindowMode mode);
 		WindowMode GetWindowMode();
+		void SetWindowMode(WindowMode mode);
 
 		//Can assign the window state to one of the supported types
-		void SetWindowState(WindowState state);
 		WindowState GetWindowState() const;
+		void SetWindowState(WindowState state);
 
 #ifdef _WIN32
 		//If true, then Windows stops this app from closing
 		//when shutting down or logging off to enable you to close your work
-		void SetShutdownBlockState(bool state);
 		bool IShutdownBlockEnabled() const;
+		void SetShutdownBlockState(bool state);
 
 		//Flash the window or taskbar to attract user attention
 		void Flash(
@@ -299,13 +279,15 @@ namespace KalaWindow::Graphics
 			u8 maxProgress) const;
 #endif
 
-		void SetResizeCallback(function<void()>&& newValue);
 		void ResizeCallback();
+		void SetResizeCallback(function<void()>&& newValue);
 
 		void SetShutdownCallback(function<void()>&& newValue);
 
-		void SetWindowData(WindowData&& newWindowStruct);
 		const WindowData& GetWindowData() const;
+		void SetWindowData(WindowData&& newWindowStruct);
+
+		void CheckWindowHandle(string&& errorMessage);
 
 		void Destroy();
 
@@ -321,11 +303,12 @@ namespace KalaWindow::Graphics
 		vector<u32> childIDs{};
 
 #ifdef __linux__
+		void UpdateFullscreenAndMinimizedState();
+
 		bool isFocused{};
 		bool isVisible{};
 		bool isMinimized{};
 		
-		void UpdateFullscreenAndMinimizedState();
 		bool isFullscreen{};
 
 		vec2 pos{};
