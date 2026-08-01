@@ -9,6 +9,7 @@ dir_debug: build/debug-
 
 #global
 compilerlauncher: ccache
+compiler: clang
 standard: c17
 binarytype: static
 sources: "*.c"
@@ -17,26 +18,22 @@ warninglevel: normal
 
 #profile debug-windows
 binaryname: ${name_bin}d
-compiler: clang-cl
 buildtype: debug
 buildpath: "${dir_debug}windows"
 
 #profile release-windows
 binaryname: ${name_bin}
-compiler: clang-cl
 buildtype: minsizerel
 buildpath: "${dir_release}windows"
 
 #profile debug-linux
 binaryname: lib${name_bin}d
-compiler: clang
 buildtype: debug
 buildpath: "${dir_debug}linux"
 defines: _GNU_SOURCE
 
 #profile release-linux
 binaryname: lib${name_bin}
-compiler: clang
 buildtype: minsizerel
 buildpath: "${dir_release}linux"
 defines: _GNU_SOURCE

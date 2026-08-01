@@ -6,8 +6,8 @@ name_bin: spirv-reflect
 #global
 compilerlauncher: ccache
 compiler: clang
-binarytype: static
 standard: c17
+binarytype: static
 sources: "*.c"
 headers: "."
 warninglevel: normal

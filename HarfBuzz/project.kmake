@@ -9,6 +9,7 @@ dir_debug: build/debug-
 
 #global
 compilerlauncher: ccache
+compiler: clang++
 standard: c++20
 binarytype: static
 sources: "src/harfbuzz.cc"
@@ -17,25 +18,21 @@ warninglevel: normal
 
 #profile debug-windows
 binaryname: ${name_bin}d
-compiler: clang-cl
 buildtype: debug
 buildpath: "${dir_debug}windows"
 
 #profile release-windows
 binaryname: ${name_bin}
-compiler: clang-cl
 buildtype: minsizerel
 buildpath: "${dir_release}windows"
 
 #profile debug-linux
 binaryname: lib${name_bin}d
-compiler: clang++
 buildtype: debug
 buildpath: "${dir_debug}linux"
 
 #profile release-linux
 binaryname: lib${name_bin}
-compiler: clang++
 buildtype: minsizerel
 buildpath: "${dir_release}linux"
 postbuildaction: strip --strip-unneeded ${dir_release}linux/lib${name_bin}.a
