@@ -4,8 +4,6 @@
 
 #references
 name_bin: freetype
-dir_release: build/release-
-dir_debug: build/debug-
 
 #global
 compilerlauncher: ccache
@@ -20,20 +18,31 @@ warninglevel: normal
 #profile debug-windows
 binaryname: ${name_bin}d
 buildtype: debug
-buildpath: "${dir_debug}windows"
+buildpath: "debug"
 
 #profile release-windows
 binaryname: ${name_bin}
 buildtype: minsizerel
-buildpath: "${dir_release}windows"
+buildpath: "release"
+
+#profile debug-win-to-linux
+targettype: windows-gnu
+binaryname: ${name_bin}-gnud
+buildtype: debug
+buildpath: "debug"
+
+#profile release-win-to-linux
+targettype: windows-gnu
+binaryname: ${name_bin}-gnu
+buildtype: minsizerel
+buildpath: "release"
 
 #profile debug-linux
 binaryname: lib${name_bin}d
 buildtype: debug
-buildpath: "${dir_debug}linux"
+buildpath: "debug"
 
 #profile release-linux
 binaryname: lib${name_bin}
 buildtype: minsizerel
-buildpath: "${dir_release}linux"
-postbuildaction: strip --strip-unneeded ${dir_release}linux/lib${name_bin}.a
+buildpath: "release"

@@ -4,8 +4,6 @@
 
 #references
 name_bin: assimp
-dir_release: build/release-
-dir_debug: build/debug-
 name_zlib: zlib
 dir_zlib_rel: zlib/release
 dir_zlib_deb: zlib/debug
@@ -24,24 +22,37 @@ customflags: export-compile-commands
 #profile debug-windows
 binaryname: ${name_bin}d
 buildtype: debug
-buildpath: "${dir_debug}windows"
+buildpath: "debug"
 links: "${dir_zlib_deb}/${name_zlib}d.lib"
 
 #profile release-windows
 binaryname: ${name_bin}
 buildtype: minsizerel
-buildpath: "${dir_release}windows"
+buildpath: "release"
 links: "${dir_zlib_rel}/${name_zlib}.lib"
+
+#profile debug-win-on-linux
+targettype: windows-gnu
+binaryname: ${name_bin}-gnud
+buildtype: debug
+buildpath: "debug"
+links: "${dir_zlib_deb}/${name_zlib}-gnud.lib"
+
+#profile release-win-on-linux
+targettype: windows-gnu
+binaryname: ${name_bin}-gnu
+buildtype: minsizerel
+buildpath: "release"
+links: "${dir_zlib_rel}/${name_zlib}-gnu.lib"
 
 #profile debug-linux
 binaryname: lib${name_bin}d
 buildtype: debug
-buildpath: "${dir_debug}linux"
+buildpath: "debug"
 links: "${dir_zlib_deb}/lib${name_zlib}d.a"
 
 #profile release-linux
 binaryname: lib${name_bin}
 buildtype: minsizerel
-buildpath: "${dir_release}linux"
+buildpath: "release"
 links: "${dir_zlib_rel}/lib${name_zlib}.a"
-postbuildaction: strip --strip-unneeded ${dir_release}linux/lib${name_bin}.a
