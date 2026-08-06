@@ -106,6 +106,9 @@ namespace KalaWindow::Graphics
 		uintptr_t atom_net_wm_name{};
 		uintptr_t atom_net_wm_pid{};
 
+		uintptr_t atom_net_wm_allowed_actions{};
+		uintptr_t atom_net_wm_action_resize{};
+
 		uintptr_t atom_net_wm_state{};
 		uintptr_t atom_net_wm_state_hidden{};
 		uintptr_t atom_net_wm_state_fullscreen{};
@@ -126,9 +129,6 @@ namespace KalaWindow::Graphics
 		//Toggle verbose logging. If true, then global window context 
 		//and all windows will dump their logs into the console.
 		static void SetVerboseLoggingState(bool newState);
-
-		static void Initialize();
-		static bool IsInitialized();
 
 #ifdef __linux__
 		static const X11GlobalData& GetGlobalData();
@@ -172,6 +172,8 @@ namespace KalaWindow::Graphics
 		//Play a system sound once of the chosen type
 		static void PlaySystemSound(SoundType type);
 	private:
+		static void Initialize();
+		static bool IsInitialized();
 #ifdef __linux__
 		static void Shutdown();
 #endif
