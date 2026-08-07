@@ -10,6 +10,15 @@
 
 #include "core/kg_registry.hpp"
 
+struct VkBuffer_T;
+using VkBuffer = VkBuffer_T*;
+
+struct VmaAllocation_T;
+using VmaAllocation = VmaAllocation_T*;
+
+struct VkDescriptorSet_T;
+using VkDescriptorSet = VkDescriptorSet_T*;
+
 namespace KalaGraphics::Core
 {
     class GraphicsContext;
@@ -17,6 +26,15 @@ namespace KalaGraphics::Core
 
 namespace KalaGraphics::Resources
 {
+    //min and max allowed raw deltatime for mouse
+    constexpr f32 MOUSE_MAX = 100.0f;
+
+    constexpr f32 SENS_MIN = 0.1f;
+    constexpr f32 SENS_MAX = 10.0f;
+
+    constexpr f32 SPEED_MIN = 0.1f;
+    constexpr f32 SPEED_MAX = 10.0f;
+
     constexpr f32 FOV_MIN = 30.0f;
     constexpr f32 FOV_MAX = 180.0f;
 
@@ -42,40 +60,62 @@ namespace KalaGraphics::Resources
     {
     friend class KalaGraphics::Core::GraphicsContext;
     friend class Mesh;
+    friend class Shader;
     public:
         static KalaGraphicsRegistry<Camera>& GetRegistry();
 
         static Camera* Initialize(
-            u32 contextID, 
-            CameraType type,
-            vec3&& pos = {},
-            vec3&& rot = { 0.0f, -90.0f, 0.0f },
-            f32 fov = 90.0f,
-            vec2 drawDistance = { 0.001f, 1000.0f });
+            u32 contextID,
+            u32 shaderID);
 
         u32 GetID() const;
 
         u32 GetGraphicsContextID() const;
         void SetGraphicsContextID(u32 newValue);
 
+        u32 GetShaderId() const;
+        void SetShaderID(u32 newValue);
+
         u32 GetMeshID() const;
         void SetMeshID(u32 newValue);
 
+        CameraType GetCameraType() const;
+        void SetCameraType(CameraType type);
+
+        //Pass mouse and keyboard input to this camera,
+        //Keyboard is internally clamped to -1, 1,
+        //Mouse is clamped to MOUSE_MAX,
+        //Vertical is global up-down movement, optional.
+        //Pass deltaTime if you wish to also modify camera by that, optional.
+        //Calls UpdateCameraData internally, no need to call it separately.
+        void Move(
+            vec2 mouse,
+            vec2 keyboard,
+            f32 vertical = {},
+            f32 deltaTime = {});
+
+        //Call after updating camera transform manually to ensure camera UBO buffer is up to date
+        void UpdateCameraData();
+
         Transform3D& GetTransform();
+
+        f32 GetSpeedMultiplier() const;
+        void SetSpeedMultiplier(f32 newSpeed);
+
+        f32 GetSensitivityMultiplier() const;
+        void SetSensitivityMultiplier(f32 newSens);
 
         f32 GetFOV() const;
         void SetFOV(f32 newFOV);
 
-        vec2 GetDrawDistance();
+        vec2 GetDrawDistance() const;
         void SetDrawDistance(vec2 newDraw);
 
-        const mat4& GetView() const;
-        const mat4& GetProjection() const;
-        const mat4& GetOrtho() const;
-        const mat4& GetUModel() const;
+        const mat4& GetCameraMatrix() const;
 
-        //Allow camera to be moved by mouse
-        void Update(vec2 mouse);
+        VkBuffer GetBuffer();
+        VmaAllocation GetAllocation();
+        VkDescriptorSet GetDescriptorSet();
 
         void Destroy();
 
@@ -88,23 +128,30 @@ namespace KalaGraphics::Resources
 
         u32 ID{};
         u32 contextID{};
+        u32 shaderID{};
         u32 meshID{};
 
-        CameraType type{};
+        CameraType type = CameraType::C_PERSPECTIVE;
 
         Transform3D transform{};
 
-        f32 fov{};
-        f32 aspect{};
-        vec2 drawDistance{};
+        f32 speedMultiplier = 1.0f;
+        f32 sensitivityMultiplier = 1.0f;
+        f32 fov = 90.0f;
+        vec2 drawDistance = { 0.001f, 1000.0f };
 
         //internal viewport size value that comes from graphics context
         //whenever the swapchain is recreated during resize
         vec2 viewport{};
 
-        mat4 view{};
-        mat4 projection{};
-        mat4 ortho{};
-        mat4 umodel{};
+        mat4 projectionMatrix{};
+        mat4 orthographicMatrix{};
+
+        bool reassign{};
+        VkBuffer vkCameraUBOBuffer{};
+        VmaAllocation vmaCameraUBOAllocation{};
+        void* cameraUBOMappedPtr{};
+
+        VkDescriptorSet vkCameraDescriptorSet{};
     };
 }

@@ -13,6 +13,7 @@
 #include "math_utils.hpp"
 
 #include "core/kg_registry.hpp"
+#include "resources/kg_shader.hpp"
 
 struct VkBuffer_T;
 using VkBuffer = VkBuffer_T*;
@@ -23,6 +24,7 @@ using VmaAllocation = VmaAllocation_T*;
 namespace KalaGraphics::Resources
 {
     using KalaHeaders::KalaMath::Transform3D;
+    using KalaHeaders::KalaMath::mat4;
     using KalaHeaders::KalaMath::vec3;
     using KalaHeaders::KalaMath::vec2;
 
@@ -123,36 +125,34 @@ namespace KalaGraphics::Resources
             Mesh_Sphere sphereData);
 
         u32 GetID() const;
-
         u32 GetCameraID() const;
 
         u32 GetShaderID() const;
         void SetShaderID(u32 newID);
+
+        //Should be called after manually updating mesh shader data,
+        //vertices, indices or attached camera data
+        void UpdateMeshData();
 
         bool Is2D() const;
         void Set2DState(bool newState);
 
         Transform3D& GetTransform();
 
+        const mat4& GetModelMatrix() const;
+
         vector<Vertex>& GetVertices();
         vector<u32>& GetIndices();
 
-        //Should be called after manually updating vertices
-        //to generate new vertex VkBuffer data
-        void UpdateVertices();
-        //Should be called after manually updating indices
-        //to generate new index VkBuffer data
-        void UpdateIndices();
-
-        //True if vertex VkBuffer,
-        //false if index VkBuffer
-        VkBuffer& GetVkBuffer(bool vertex);
+        VkBuffer GetBuffer(bool vertexBuffer);
+        VmaAllocation GetAllocation(bool vertexAllocation);
 
         void Destroy();
 
         ~Mesh();
     private:
-        void SyncToGPU();
+        void UpdateVertices();
+        void UpdateIndices();
 
         bool isDestroyingCamera{};
 
@@ -162,18 +162,20 @@ namespace KalaGraphics::Resources
 
         bool is2D{};
 
+        Transform3D transform{};
+
         vector<Vertex> vertices{};
         VkBuffer vkVertexBuffer{};
         VmaAllocation vmaVertexAllocation{};
-        size_t vertexBufferSize{};
+        size_t vertexBufferSize{}; //required because vertices size may change
         void* vertexMappedPtr{};
 
         vector<u32> indices{};
         VkBuffer vkIndexBuffer{};
         VmaAllocation vmaIndexAllocation{};
-        size_t indexBufferSize{};
+        size_t indexBufferSize{}; //required because indices size may change
         void* indexMappedPtr{};
 
-        Transform3D transform{};
+        REPLACE_ME_TEST_SHADER_DATA testShaderData{};
     };
 }
