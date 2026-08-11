@@ -25,13 +25,13 @@ binaryname: ${name_bin}
 buildtype: minsizerel
 buildpath: "release"
 
-#profile debug-win-to-linux
+#profile debug-windows-gnu
 targettype: windows-gnu
 binaryname: ${name_bin}-gnud
 buildtype: debug
 buildpath: "debug"
 
-#profile release-win-to-linux
+#profile release-windows-gnu
 targettype: windows-gnu
 binaryname: ${name_bin}-gnu
 buildtype: minsizerel
