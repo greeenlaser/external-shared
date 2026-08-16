@@ -8,8 +8,8 @@ compilerlauncher: ccache
 compiler: clang
 standard: c17
 binarytype: static
-sources: "*.c"
-headers: "."
+sources: "src/miniaudio.c"
+headers: "include"
 warninglevel: normal
 
 #profile debug-windows

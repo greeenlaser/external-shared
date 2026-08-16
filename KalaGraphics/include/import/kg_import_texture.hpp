@@ -7,7 +7,6 @@
 
 #include <filesystem>
 #include <vector>
-#include <array>
 
 #include "core_utils.hpp"
 
@@ -19,41 +18,15 @@ namespace KalaGraphics::Import
 
     using std::filesystem::path;
     using std::vector;
-    using std::array;
     using std::string;
     using std::string_view;
+    using std::default_delete;
 
     using u8 = uint8_t;
     using u32 = uint32_t;
 
     static constexpr string_view EXT_PNG = ".png";
     static constexpr string_view EXT_KTEX = ".ktex";
-
-    static constexpr array<u8, 16 * 16 * 4> FALLBACK_TEXTURE = []
-    {
-        array<u8, 16 * 16 * 4> data{};
-    
-        constexpr u8 pink[4] = { 255, 0, 255, 255 };
-        constexpr u8 black[4] = { 0, 0, 0, 255 };
-
-        for (int y = 0; y < 16; ++y)
-        {
-            for (int x = 0; x < 16; ++x)
-            {
-                //2x2 tile index: flips every 2 pixels in each axis
-                bool tileParity = ((x / 2) + (y / 2)) % 2 == 0;
-                const u8* color = tileParity ? pink : black;
-
-                int pixelIndex = (y * 16 + x) * 4;
-                data[pixelIndex + 0] = color[0];
-                data[pixelIndex + 1] = color[1];
-                data[pixelIndex + 2] = color[2];
-                data[pixelIndex + 3] = color[3];
-            }
-        }
-
-        return data;
-    }();
 
     struct TextureData
     {
@@ -62,6 +35,7 @@ namespace KalaGraphics::Import
 
     class LIB_API ImportTexture
     {
+    friend struct default_delete<ImportTexture>;
     public:
         static KalaGraphicsRegistry<ImportTexture>& GetRegistry();
 
@@ -73,9 +47,9 @@ namespace KalaGraphics::Import
         const TextureData& GetTextureData() const;
 
         void Destroy();
-
-        ~ImportTexture();
     private:
+        ~ImportTexture();
+
         static string Init_PNG(
             vector<u8>&& binaryData,
             TextureData& outTextureData);

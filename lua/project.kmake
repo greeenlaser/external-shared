@@ -10,8 +10,8 @@ compilerlauncher: ccache
 compiler: clang
 standard: c17
 binarytype: static
-sources: "onelua.c"
-headers: "."
+sources: "src/onelua.c"
+headers: "include"
 defines: MAKE_LIB
 warninglevel: normal
 

@@ -21,6 +21,9 @@ using VkBuffer = VkBuffer_T*;
 struct VmaAllocation_T;
 using VmaAllocation = VmaAllocation_T*;
 
+struct VkDescriptorSet_T;
+using VkDescriptorSet = VkDescriptorSet_T*;
+
 namespace KalaGraphics::Resources
 {
     using KalaHeaders::KalaMath::Transform3D;
@@ -33,6 +36,7 @@ namespace KalaGraphics::Resources
     using std::vector;
     using std::string;
     using std::filesystem::path;
+    using std::default_delete;
 
     using u8 = uint8_t;
     using f32 = float;
@@ -87,12 +91,23 @@ namespace KalaGraphics::Resources
 
     struct LIB_API Vertex
     {
-        //X, Y, Z, (Z is unused for 2D)
+        //X, Y, Z
         vec3 pos{};
-        //X, Y, Z (Z is unused for 2D)
+        //X, Y, Z
         vec3 normal{};
         //U, V texture coordinates
         vec2 uv{};
+        //RGBA color - default is white
+        vec4 color = 1;
+    };
+    struct LIB_API Vertex2D
+    {
+        //X, Y
+        vec2 pos{};
+        //U, V texture coordinates
+        vec2 uv{};
+        //RGBA color - default is white
+        vec4 color = 1;
     };
 
     //Output after generating a meshes data
@@ -102,16 +117,23 @@ namespace KalaGraphics::Resources
         vector<u32> indices{};
     };
 
+    //TODO: add instancing
+
     class LIB_API Mesh
     {
     friend class Shader;
+    friend class Texture;
     friend class Camera;
+    friend struct default_delete<Mesh>;
     public:
         static KalaGraphicsRegistry<Mesh>& GetRegistry();
 
         //Create a blank mesh,
-        //all meshes require a shader even if that shader is also blank
-        static Mesh* Initialize(u32 shaderID);
+        //all meshes require a shader even if that shader is also blank,
+        //all meshes require a texture even if that texture is also a default 1x1 texture
+        static Mesh* Initialize(
+            u32 shaderID,
+            u32 textureID);
 
         //Import FBX, OBJ or GLTF model mesh data
         static Mesh_Generated_Data GenerateMeshData(const path& meshPath);
@@ -130,27 +152,30 @@ namespace KalaGraphics::Resources
         u32 GetShaderID() const;
         void SetShaderID(u32 newID);
 
-        //Should be called after manually updating mesh shader data,
-        //vertices, indices or attached camera data
-        void UpdateMeshData();
+        u32 GetTextureID() const;
+        void SetTextureID(u32 newID);
+
+        const Transform3D& GetTransform() const;
+        void SetTransform(Transform3D&& newTransform);
 
         bool Is2D() const;
         void Set2DState(bool newState);
 
-        Transform3D& GetTransform();
+        const vector<Vertex>& GetVertices() const;
+        void SetVertices(vector<Vertex>&& newVertices);
 
-        const mat4& GetModelMatrix() const;
+        const vector<u32>& GetIndices() const;
+        void SetIndices(vector<u32>&& newIndices);
 
-        vector<Vertex>& GetVertices();
-        vector<u32>& GetIndices();
+        const mat4& GetMatrix() const;
 
-        VkBuffer GetBuffer(bool vertexBuffer);
-        VmaAllocation GetAllocation(bool vertexAllocation);
+        //Should be called after updating any mesh data
+        void UpdateMeshData();
 
         void Destroy();
-
-        ~Mesh();
     private:
+        ~Mesh();
+
         void UpdateVertices();
         void UpdateIndices();
 
@@ -158,24 +183,39 @@ namespace KalaGraphics::Resources
 
         u32 ID{};
         u32 shaderID{};
+        u32 textureID{};
         u32 cameraID{};
 
         bool is2D{};
 
         Transform3D transform{};
 
+        //vertex data
+
         vector<Vertex> vertices{};
         VkBuffer vkVertexBuffer{};
+        u64 verticesSize{};
         VmaAllocation vmaVertexAllocation{};
-        size_t vertexBufferSize{}; //required because vertices size may change
         void* vertexMappedPtr{};
+
+        //index data
 
         vector<u32> indices{};
         VkBuffer vkIndexBuffer{};
+        u64 indicesSize{};
         VmaAllocation vmaIndexAllocation{};
-        size_t indexBufferSize{}; //required because indices size may change
         void* indexMappedPtr{};
 
-        REPLACE_ME_TEST_SHADER_DATA testShaderData{};
+        //mesh matrix data
+
+        mat4 meshMatrix{};
+
+        bool isDirty{};
+
+        VkBuffer vkMeshUBOBuffer{};
+        VmaAllocation vmaMeshUBOAllocation{};
+        void* meshUBOMappedPtr{};
+
+        VkDescriptorSet vkDescriptorSet{};
     };
 }

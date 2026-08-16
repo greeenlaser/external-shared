@@ -67,24 +67,39 @@ using VkCommandBuffer = VkCommandBuffer_T*;
 
 namespace KalaGraphics::Resources
 {
+    class Shader;
+    class Texture;
     class Mesh;
     class Camera;
-    class Shader;
 }
 
 namespace KalaGraphics::Core
 {
-    constexpr u8 MAX_FRAMES_IN_FLIGHT = 2;
-
     using KalaHeaders::KalaMath::vec2;
 
     using std::string;
     using std::string_view;
     using std::vector;
     using std::array;
+    using std::default_delete;
 
     using u8 = uint8_t;
     using u32 = uint32_t;
+
+    static constexpr u8 MAX_FRAMES_IN_FLIGHT = 2;
+
+    //Max total descriptor sets this pool can allocate at once,
+    //shared across every Mesh, Camera and Texture descriptor set
+    static constexpr u32 MAX_DESCRIPTOR_SETS = 4096;
+
+    //Mesh matrix UBO + camera matrix UBO
+    static constexpr u32 MAX_UNIFORM_BUFFER_DESCRIPTORS = 2048;
+    //Texture sampler bindings
+    static constexpr u32 MAX_COMBINED_IMAGE_SAMPLER_DESCRIPTORS = 2048;
+    //For future compute/SSBO-based features
+    static constexpr u32 MAX_STORAGE_BUFFER_DESCRIPTORS = 2048;
+    //For future bindless-style setups
+    static constexpr u32 MAX_SAMPLER_DESCRIPTORS = 64;
 
     enum class Severity : u8
     {
@@ -186,9 +201,11 @@ namespace KalaGraphics::Core
 
     class LIB_API GraphicsContext
     {
-    friend class KalaGraphics::Resources::Mesh;
-    friend class KalaGraphics::Resources::Camera;
     friend class KalaGraphics::Resources::Shader;
+    friend class KalaGraphics::Resources::Mesh;
+    friend class KalaGraphics::Resources::Texture;
+    friend class KalaGraphics::Resources::Camera;
+    friend struct default_delete<GraphicsContext>;
     public:
         static KalaGraphicsRegistry<GraphicsContext>& GetRegistry();
 
@@ -205,18 +222,9 @@ namespace KalaGraphics::Core
         static string GetVkResultMessage(int result);
         static Severity GetVkResultSeverity(int result);
 
-        static VkInstance GetVKInstance();
-        static void SetVKInstance(VkInstance vk_instance);
-
-        static VkPhysicalDevice GetPhysicalDevice();
-        static VkDevice GetLogicalDevice();
-        static VkQueue GetGraphicsQueue();
-        static VmaAllocator GetVmaAllocator();
-        static VkDescriptorPool GetDescriptorPool();
-
         //Global one-time Vulkan 1.4 device init,
         //needs to be called before per-window Vulkan init
-        static void Initialize();
+        static void Initialize(VkInstance vkInstance);
         static bool IsInitialized();
 
         //Single draw call for all existing contexts,
@@ -228,7 +236,6 @@ namespace KalaGraphics::Core
 
         u32 GetID() const;
         const vector<u32>& GetShaderIDs() const;
-        const vector<u32>& GetCameraIDs() const;
 
         VSyncState GetVSyncState() const;
         void SetVSyncState(VSyncState newValue);
@@ -255,7 +262,26 @@ namespace KalaGraphics::Core
     
         const GraphicsContextData& GetGraphicsContextData() const;
 
+        //Get current swapchain extent size
         vec2 GetExtent();
+
+        //Recreates the Vulkan swapchain and its related content, useful for resize events etc
+        void RecreateSwapchain();
+
+        void Destroy();
+    private:
+        ~GraphicsContext();
+
+        static VkInstance GetInstance();
+
+        static VkPhysicalDevice GetPhysicalDevice();
+        static VkDevice GetLogicalDevice();
+        static VkQueue GetGraphicsQueue();
+        static VmaAllocator GetVmaAllocator();
+        static VkDescriptorPool GetDescriptorPool();        
+
+        void InitializeVulkanContext();
+
         VkSwapchainKHR& GetSwapchain();
         vector<VkImageView>& GetImageViews();
         VkRenderPass& GetRenderPass();
@@ -268,17 +294,10 @@ namespace KalaGraphics::Core
         array<VkFence, MAX_FRAMES_IN_FLIGHT>& GetInFlightFences();
         array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT>& GetCommandBuffers();
 
-        //Called to trigger resize events
-        void ResizeUpdate();
-
-        //Recreates the Vulkan swapchain and its related content, useful for resize events etc
-        void RecreateSwapchain();
-
-        void Destroy();
-
-        ~GraphicsContext();
-    private:
-        void InitializeVulkanContext();
+        //Create and use a single time command buffer for a small batch of operations
+        VkCommandBuffer BeginSingleTimeCommands();
+        //Destroy and stop using the created command buffer
+        void EndSingleTimeCommands(VkCommandBuffer vkCommandBuffer);
 
         void UpdateInstance();
 
@@ -286,8 +305,6 @@ namespace KalaGraphics::Core
 
         //shaders that use this graphics context
         vector<u32> shaderIDs{};
-        //cameras that use this graphics context
-        vector<u32> cameraIDs{};
 
         u8 missingShaderWarningCount{};
 

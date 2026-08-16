@@ -26,6 +26,15 @@ namespace KalaGraphics::Core
 
 namespace KalaGraphics::Resources
 {
+    using KalaHeaders::KalaMath::Transform3D;
+    using KalaHeaders::KalaMath::vec2;
+    using KalaHeaders::KalaMath::vec3;
+    using KalaHeaders::KalaMath::mat4;
+
+    using KalaGraphics::Core::KalaGraphicsRegistry;
+
+    using std::default_delete;
+
     //min and max allowed raw deltatime for mouse
     constexpr f32 MOUSE_MAX = 100.0f;
 
@@ -41,13 +50,6 @@ namespace KalaGraphics::Resources
     constexpr f32 DRAW_DISTANCE_MIN = 0.001f;
     constexpr f32 DRAW_DISTANCE_MAX = 10000.0f;
 
-    using KalaHeaders::KalaMath::Transform3D;
-    using KalaHeaders::KalaMath::vec2;
-    using KalaHeaders::KalaMath::vec3;
-    using KalaHeaders::KalaMath::mat4;
-
-    using KalaGraphics::Core::KalaGraphicsRegistry;
-
     enum class CameraType : u8
     {
         C_INVALID = 0u,
@@ -61,26 +63,22 @@ namespace KalaGraphics::Resources
     friend class KalaGraphics::Core::GraphicsContext;
     friend class Mesh;
     friend class Shader;
+    friend struct default_delete<Camera>;
     public:
         static KalaGraphicsRegistry<Camera>& GetRegistry();
 
-        static Camera* Initialize(
-            u32 contextID,
-            u32 shaderID);
+        //Return whatever the current active camera is
+        static Camera* GetActiveCamera();
+
+        static Camera* Initialize(u32 shaderID);
 
         u32 GetID() const;
-
-        u32 GetGraphicsContextID() const;
-        void SetGraphicsContextID(u32 newValue);
 
         u32 GetShaderId() const;
         void SetShaderID(u32 newValue);
 
         u32 GetMeshID() const;
         void SetMeshID(u32 newValue);
-
-        CameraType GetCameraType() const;
-        void SetCameraType(CameraType type);
 
         //Pass mouse and keyboard input to this camera,
         //Keyboard is internally clamped to -1, 1,
@@ -94,10 +92,16 @@ namespace KalaGraphics::Resources
             f32 vertical = {},
             f32 deltaTime = {});
 
-        //Call after updating camera transform manually to ensure camera UBO buffer is up to date
-        void UpdateCameraData();
+        const Transform3D& GetTransform() const;
+        void SetTransform(Transform3D&& newTransform);
 
-        Transform3D& GetTransform();
+        bool IsActiveCamera() const;
+        //Assign this camera as the active camera,
+        //only one camera is allowed to draw across all shaders
+        void SetAsActiveCamera();
+
+        CameraType GetCameraType() const;
+        void SetCameraType(CameraType type);
 
         f32 GetSpeedMultiplier() const;
         void SetSpeedMultiplier(f32 newSpeed);
@@ -111,25 +115,21 @@ namespace KalaGraphics::Resources
         vec2 GetDrawDistance() const;
         void SetDrawDistance(vec2 newDraw);
 
-        const mat4& GetCameraMatrix() const;
+        const mat4& GetMatrix() const;
 
-        VkBuffer GetBuffer();
-        VmaAllocation GetAllocation();
-        VkDescriptorSet GetDescriptorSet();
+        //Should be called after updating any camera data,
+        //move already calls this function
+        void UpdateCameraData();
 
         void Destroy();
-
+    private:
         ~Camera();
-    private: 
-        //used only to prevent camera from removing its ID from
-        //graphics context camera IDs list if the graphics context
-        //destroy function called the destroy function of this camera 
-        bool isDestroyingGraphicsContext{};
 
         u32 ID{};
-        u32 contextID{};
         u32 shaderID{};
         u32 meshID{};
+
+        bool isActiveCamera{};
 
         CameraType type = CameraType::C_PERSPECTIVE;
 
@@ -147,11 +147,12 @@ namespace KalaGraphics::Resources
         mat4 projectionMatrix{};
         mat4 orthographicMatrix{};
 
-        bool reassign{};
+        bool isDirty{};
+
         VkBuffer vkCameraUBOBuffer{};
         VmaAllocation vmaCameraUBOAllocation{};
         void* cameraUBOMappedPtr{};
 
-        VkDescriptorSet vkCameraDescriptorSet{};
+        VkDescriptorSet vkDescriptorSet{};
     };
 }
