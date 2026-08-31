@@ -14,12 +14,7 @@
 #include "core_utils.hpp"
 #include "math_utils.hpp"
 
-#if defined(KWIN_ANY)
-#include "core/kw_messageloop_windows.hpp"
-#elif defined(KLIN_ANY)
-#include "core/kw_messageloop_x11.hpp"
-#endif
-
+#include "core/kw_messageloop.hpp"
 #include "core/kw_registry.hpp"
 
 namespace KalaWindow::Core
@@ -239,7 +234,10 @@ namespace KalaWindow::Graphics
 		u32 parentID = UINT32_MAX;
 		vector<u32> childIDs{};
 
-#if defined(KLIN_ANY)
+#if defined(KWIN_ANY)
+		bool wasMaximizedOrRestored{};
+		bool isResizing{};
+#else
 		void UpdateFullscreenAndMinimizedState();
 
 		bool isFocused{};
