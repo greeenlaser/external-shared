@@ -46,27 +46,27 @@ namespace KalaWindow::Graphics
 	static constexpr f32 MAX_WINDOW_SIZE = 10000.0f;
 
 	//Display mode / monitor ownership state
-	enum class WindowMode
+	enum class WindowMode : u8
 	{
 		//Window will float and can be resized and moved around
-		WINDOWMODE_WINDOWED,
+		WINDOWMODE_WINDOWED   = 0,
 		//Window will go fullscreen and will hide decorations and top bar,
 		//stays alt-tab friendly and uses the compositor, best for low-performance applications and games
-		WINDOWMODE_BORDERLESS,
+		WINDOWMODE_BORDERLESS = 1,
 		//Window will go fullscreen and will hide decorations and top bar,
 		//flashes when alt-tabbing and uses full gpu, best for high-performance applications and games,
 		//uses WINDOWMODE_BORDERLESS on x11
-		WINDOWMODE_EXCLUSIVE
+		WINDOWMODE_EXCLUSIVE  = 2
 	};
 
 	//Presentation/visibility state
-	enum class WindowState
+	enum class WindowState : u8
 	{
-		WINDOW_NORMAL,        //Show the window with default size and position
-		WINDOW_MAXIMIZE,      //Maximize window to full monitor size
-		WINDOW_MINIMIZE,      //Minimize window to taskbar
-		WINDOW_HIDE,          //Hide the window, including from taskbar
-		WINDOW_SHOWNOACTIVATE //Display the window without focusing to it, uses WINDOW_NORMAL on x11
+		WINDOW_NORMAL         = 0, //Show the window with default size and position
+		WINDOW_MAXIMIZE       = 1, //Maximize window to full monitor size
+		WINDOW_MINIMIZE       = 2, //Minimize window to taskbar
+		WINDOW_HIDE           = 3, //Hide the window, including from taskbar
+		WINDOW_SHOWNOACTIVATE = 4  //Display the window without focusing to it, uses WINDOW_NORMAL on x11
 	};
 
 #if defined(KWIN_ANY)
@@ -93,17 +93,19 @@ namespace KalaWindow::Graphics
 	friend class VulkanContext;
 	friend struct default_delete<ProcessWindow>;
 	public:
+		KNODISCARD
 		static KalaWindowRegistry<ProcessWindow>& GetRegistry();
 
 		//Create a new window with a title and at the desired position and size.
 		//Assign a parent window to display this window as a child of that window
+		KNODISCARD
 		static ProcessWindow* Initialize(
 			string&& title,
 			vec2 pos = 600,
 			vec2 size = { 800, 600 },
 			ProcessWindow* parentWindow = nullptr);
 
-		//Global update call for process window and input.
+		//Global update call for all process windows, inputs and Vulkan contexts.
 		//  - global early update: what happens BEFORE KalaWindow window logic and input logic
 		//  - global update: what happens IN BETWEEN KalaWindow window logic and input logic
 		//  - global late update: what happens AFTER KalaWindow window logic and input logic
@@ -112,50 +114,63 @@ namespace KalaWindow::Graphics
 			const function<void()>& globalUpdate = {},
 			const function<void()>& globalLateUpdate = {});
 
+		KNODISCARD
 		u32 GetID() const;
+		KNODISCARD
 		u32 GetInputID() const;
+		KNODISCARD
 		u32 GetGraphicsContextID() const;
 
 		//Do something whenever file drag onto window succeeds
 		void SetDraggedFilesCallback(function<void(const vector<path>&, vec2)>&& newValue);
 		//Returns last dragged files that were dragged onto window
+		KNODISCARD
 		const vector<path>& GetLastDraggedFiles() const;
 		//Clears last dragged files that were dragged onto window
 		void ClearLastDraggedFiles();
 
+		KNODISCARD
 		string GetTitle() const;
 		void SetTitle(string&& newTitle) const;
 
 		//Bring this window to the foreground and make it focused
 		void BringToFocus();
 
+		KNODISCARD
 		vec2 GetSize() const;
 		void SetSize(vec2 newSize);
 
 		//X11 does not expose outer size reliably
 #if defined(KWIN_ANY)
+		KNODISCARD
 		vec2 GetOuterSize() const;
 		void SetOuterSize(vec2 newSize);
 #endif
 
+		KNODISCARD
 		vec2 GetMaxSize() const;
 		void SetMaxSize(vec2 newMaxSize);
 
+		KNODISCARD
 		vec2 GetMinSize() const;
 		void SetMinSize(vec2 newMinSize);
 
+		KNODISCARD
 		vec2 GetPosition();
 		void SetPosition(vec2 newPos);
 
 		//If true, then this window is always on top of other windows
+		KNODISCARD
 		bool IsAlwaysOnTop() const;		
 		void SetAlwaysOnTopState(bool state);
 
 		//If true, then this shows the outer frame and can be resized
+		KNODISCARD
 		bool IsResizable() const;		
 		void SetResizableState(bool state);
 
 #if defined(KLIN_ANY)
+		KNODISCARD
 		pair<string, string> GetWindowClass() const;
 		void SetWindowClass(string&& newValue);
 #endif
@@ -164,28 +179,35 @@ namespace KalaWindow::Graphics
 		//  - not foreground
 		//  - minimized
 		//  - not visible
+		KNODISCARD
 		bool IsIdle() const;
 
 		//Returns true if this window is being hovered over by the cursor
+		KNODISCARD
 		bool IsHovered() const;
 		//Returns true if this window is in the front, maps to IsFocused on X11
+		KNODISCARD
 		bool IsForegroundWindow() const;
 		//Returns true if this window is currently receiving keyboard input
+		KNODISCARD
 		bool IsFocused() const;
 		//Returns true if this window is undecorated and its size matches the monitor size
+		KNODISCARD
 		bool IsFullscreen();
 		//Returns true if this window is not open, but exists, maps to opposite of IsVisible on X11
+		KNODISCARD
 		bool IsMinimized() const;
 		//Returns false if this window is not rendered but also not minimized
+		KNODISCARD
 		bool IsVisible() const;
-		//Returns true if this window is currently being resized
-		bool IsResizing() const;
 
 		//Can assign the window mode to one of the supported types
+		KNODISCARD
 		WindowMode GetWindowMode();
 		void SetWindowMode(WindowMode mode);
 
 		//Can assign the window state to one of the supported types
+		KNODISCARD
 		WindowState GetWindowState() const;
 		void SetWindowState(WindowState state);
 
@@ -213,7 +235,6 @@ namespace KalaWindow::Graphics
 
 		bool isWindowHovered{}; //If true, then this window is currently being hovered by the cursor.
 		bool isIdle{};          //Toggled dynamically by isfocused, isminimized and isvisible checks.
-		bool isResizing{};      //If true, then this window is currently being resized
 
 		u32 parentID = UINT32_MAX;
 		vector<u32> childIDs{};

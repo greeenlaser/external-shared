@@ -8,7 +8,6 @@
 #include <filesystem>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "core_utils.hpp"
 #include "math_utils.hpp"
@@ -33,6 +32,7 @@ using VkPipeline = VkPipeline_T*;
 namespace KalaGraphics::Core
 {
     class GraphicsContext;
+    class Viewport;
 }
 
 namespace KalaGraphics::Resources
@@ -46,7 +46,7 @@ namespace KalaGraphics::Resources
     using std::string;
     using std::string_view;
     using std::vector;
-    using std::unique_ptr;
+    using std::pair;
     using std::default_delete;
 
     struct ShaderModuleData
@@ -64,38 +64,43 @@ namespace KalaGraphics::Resources
 
     class LIB_API Shader
     {
-    friend class KalaGraphics::Core::GraphicsContext;
     friend class Mesh;
     friend class Texture;
     friend class Camera;
+    friend class KalaGraphics::Core::GraphicsContext;
+    friend class KalaGraphics::Core::Viewport;
     friend default_delete<Shader>;
     public:
-        static KalaGraphicsRegistry<Shader>& GetRegistry();
+        KNODISCARD
+		static KalaGraphicsRegistry<Shader>& GetRegistry();
 
-        //Create a blank shader.
-        //This shader has no shader data and
-        //must be given shaders via SetShaderData
-        static Shader* Initialize(u32 graphicsContextID);
-
-        u32 GetID() const;
-
-        u32 GetGraphicsContextID() const;
-        void SetGraphicsContextID(u32 newValue);
-
-        bool Is2D() const;
-
-        const vector<u32>& GetMeshIDs() const;
-        const vector<u32>& GetTextureIDs() const;
-        const vector<u32>& GetCameraIDs() const;
-
-        //First time init or hot-reload shaders
-        void SetShaderData(
+        //Create a blank shader that isn't attached to any viewports or mesh and has no data,
+        //you must give it a viewport and set shader data to use it for meshes
+        KNODISCARD
+		static Shader* Initialize(
+            u32 viewportID,
             bool is2D,
             path&& vertPath,
             path&& fragPath,
             path&& geomPath = {});
 
-        const vector<VkDescriptorSetLayout>& GetDescriptorSetLayouts();
+        KNODISCARD
+		u32 GetID() const;
+        KNODISCARD
+        //.second is true if this shader belongs to the viewport 3D shaders container 
+		pair<u32, bool> GetViewportID() const;
+        KNODISCARD
+		const vector<u32>& GetMeshIDs() const;
+        KNODISCARD
+		const vector<u32>& GetTextureIDs() const;
+        KNODISCARD
+		const vector<u32>& GetCameraIDs() const;
+
+        KNODISCARD
+		bool Is2D() const;
+
+        KNODISCARD
+		const vector<VkDescriptorSetLayout>& GetDescriptorSetLayouts();
 
         void Destroy();
     private:
@@ -103,22 +108,30 @@ namespace KalaGraphics::Resources
 
         static void DestroyVkShaderModules(vector<VkShaderModule> modules);
 
+        void Sort2DMeshes();
+
         void Update(VkCommandBuffer buffer);
 
         //used only to prevent shader from removing its ID from
-        //graphics context shader IDs list if the graphics context
+        //viewport shader IDs list if the viewport
         //destroy function called the destroy function of this shader 
-        bool isDestroyingGraphicsContext{};
+        bool isDestroyingViewport{};
+
+        bool is2DMeshSortDirty{};
+
+        bool hasDrawn3DCamera{};
+        bool hasDrawn2DCamera{};
 
         u32 ID{};
-        u32 contextID{};
 
-        vector<u32> meshIDs{};
+        //first is viewport ID, second is viewport stage type (2D or 3D)
+        pair<u32, bool> viewportID{};
+
         vector<u32> textureIDs{};
         vector<u32> cameraIDs{};
+        vector<u32> meshIDs{};
 
-        bool is2D{};
-
+        u8 missingViewportWarningCount{};
         u8 missingPipelineWarningCount{};
         u8 missingMeshWarningCount{};
 

@@ -22,6 +22,7 @@ using VkDescriptorSet = VkDescriptorSet_T*;
 namespace KalaGraphics::Core
 {
     class GraphicsContext;
+    class Viewport;
 }
 
 namespace KalaGraphics::Resources
@@ -52,35 +53,37 @@ namespace KalaGraphics::Resources
 
     enum class CameraType : u8
     {
-        C_INVALID = 0u,
-
-        C_ORTHOGRAPHIC = 1u,
-        C_PERSPECTIVE = 2u
+        //2D camera
+        CAM_ORTHOGRAPHIC = 0,
+        //fps-stype 3D camera
+        CAM_PERSPECTIVE = 1
     };
 
     class LIB_API Camera
     {
-    friend class KalaGraphics::Core::GraphicsContext;
     friend class Mesh;
     friend class Shader;
+    friend class KalaGraphics::Core::GraphicsContext;
+    friend class KalaGraphics::Core::Viewport;
     friend struct default_delete<Camera>;
     public:
-        static KalaGraphicsRegistry<Camera>& GetRegistry();
+        KNODISCARD
+		static KalaGraphicsRegistry<Camera>& GetRegistry();
 
-        //Return whatever the current active camera is
-        static Camera* GetActiveCamera();
+        KNODISCARD
+		static Camera* Initialize(
+            u32 shaderID,
+            CameraType type = CameraType::CAM_PERSPECTIVE);
 
-        static Camera* Initialize(u32 shaderID);
+        KNODISCARD
+		u32 GetID() const;
+        KNODISCARD
+		u32 GetViewportID() const;
+        KNODISCARD
+		u32 GetShaderID() const;
 
-        u32 GetID() const;
-
-        u32 GetShaderID() const;
-        //Changing to a shader whose 2D state doesn't match the old shader 2D state
-        //will recreate this camera data and detach mesh,
-        //Move and UpdateCameraData is called internally on success
-        void SetShaderID(u32 newValue);
-
-        u32 GetMeshID() const;
+        KNODISCARD
+		u32 GetMeshID() const;
         void SetMeshID(u32 newValue);
 
         //Pass mouse and keyboard input to this camera,
@@ -95,36 +98,34 @@ namespace KalaGraphics::Resources
             f32 vertical = {},
             f32 deltaTime = {});
 
-        const Transform3D& GetTransform() const;
-        void SetTransform(Transform3D&& newTransform);
+        KNODISCARD
+		Transform3D& GetTransform();
 
-        bool IsActiveCamera() const;
-        //Assign this camera as the active camera,
-        //only one camera is allowed to draw across all shaders
-        void SetAsActiveCamera();
+        KNODISCARD
+		CameraType GetCameraType() const;
 
-        CameraType GetCameraType() const;
-        //Toggling camera type resets camera data and detaches attached mesh,
-        //Move and UpdateCameraData is called internally on success
-        void SetCameraType(CameraType type);
+        //Is this camera 2D (orthographic) or 3D (perspective)
+        KNODISCARD
+		bool Is2D();
 
-        f32 GetSpeedMultiplier() const;
+        KNODISCARD
+		f32 GetSpeedMultiplier() const;
         void SetSpeedMultiplier(f32 newSpeed);
 
-        f32 GetSensitivityMultiplier() const;
+        KNODISCARD
+		f32 GetSensitivityMultiplier() const;
         void SetSensitivityMultiplier(f32 newSens);
 
-        f32 GetFOV() const;
+        KNODISCARD
+		f32 GetFOV() const;
         void SetFOV(f32 newFOV);
 
-        vec2 GetDrawDistance() const;
+        KNODISCARD
+		vec2 GetDrawDistance() const;
         void SetDrawDistance(vec2 newDraw);
 
-        const mat4& GetMatrix() const;
-
-        //Should be called after updating any camera data,
-        //move already calls this function
-        void UpdateCameraData();
+        KNODISCARD
+		const mat4& GetMatrix() const;
 
         void Destroy();
     private:
@@ -132,13 +133,14 @@ namespace KalaGraphics::Resources
 
         void ClearAllData();
 
+        void UpdateCameraData();
+
         u32 ID{};
+        u32 viewportID{};
         u32 shaderID{};
         u32 meshID{};
 
-        bool isActiveCamera{};
-
-        CameraType type = CameraType::C_PERSPECTIVE;
+        CameraType type = CameraType::CAM_PERSPECTIVE;
 
         Transform3D transform{};
 
@@ -146,10 +148,6 @@ namespace KalaGraphics::Resources
         f32 sensitivityMultiplier = 1.0f;
         f32 fov = 90.0f;
         vec2 drawDistance = { 0.001f, 1000.0f };
-
-        //internal viewport size value that comes from graphics context
-        //whenever the swapchain is recreated during resize
-        vec2 viewport{};
 
         mat4 projectionMatrix{};
         mat4 orthographicMatrix{};

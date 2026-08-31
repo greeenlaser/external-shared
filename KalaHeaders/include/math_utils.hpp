@@ -83,9 +83,21 @@
 	#endif
 #endif
 
-#include <cmath>
-#include <cstdint>
-#include <algorithm>
+//
+// ENFORCE OLDER GLIBC FOR MATH FUNCTIONS
+//
+
+#if !defined(K_GLIBC)
+	#define K_GLIBC
+
+	#if defined(KLIN_ANY)
+	extern "C"
+	{
+		__asm__(".symver sqrtf,sqrtf@GLIBC_2.2.5");
+		__asm__(".symver atan2f,atan2f@GLIBC_2.2.5");
+	}
+	#endif
+#endif
 
 //
 // DEBUG MACRO
@@ -118,62 +130,78 @@
 	#define ccast const_cast
 #endif
 
+//
+// COMPILER MACROS
+//
+
+#if !defined(KNORETURN)
+	#define KNORETURN [[noreturn]]
+#endif
+
 #if !defined(KNODISCARD)
 	#define KNODISCARD [[nodiscard]]
 #endif
+
+#include <cstdint>
 
 //
 // NUMERIC TYPE SHORTHANDS
 //
 
-//8-bit unsigned int
-//Min: 0
-//Max: 255
-using u8 = uint8_t;
+#if !defined(KNUM)
+	#define KNUM
+	//8-bit unsigned int
+	//Min: 0
+	//Max: 255
+	using u8 = uint8_t;
 
-//16-bit unsigned int
-//Min: 0
-//Max: 65,535
-using u16 = uint16_t;
+	//16-bit unsigned int
+	//Min: 0
+	//Max: 65,535
+	using u16 = uint16_t;
 
-//32-bit unsigned int
-//Min: 0
-//Max: 4,294,967,295
-using u32 = uint32_t;
+	//32-bit unsigned int
+	//Min: 0
+	//Max: 4,294,967,295
+	using u32 = uint32_t;
 
-//64-bit unsigned int
-//Replaces handles and pointers (uintptr_t)
-//Min: 0
-//Max: 18 quintillion
-using u64 = uint64_t;
+	//64-bit unsigned int
+	//Replaces handles and pointers (uintptr_t)
+	//Min: 0
+	//Max: 18 quintillion
+	using u64 = uint64_t;
 
-//8-bit int
-//Min: -128
-//Max: 127
-using i8 = int8_t;
+	//8-bit int
+	//Min: -128
+	//Max: 127
+	using i8 = int8_t;
 
-//16-bit int
-//Min: -32,768
-//Max: 32,767
-using i16 = int16_t;
+	//16-bit int
+	//Min: -32,768
+	//Max: 32,767
+	using i16 = int16_t;
 
-//32-bit int
-//Min: -2,147,483,648
-//Max: 2,147,483,647
-using i32 = int32_t;
+	//32-bit int
+	//Min: -2,147,483,648
+	//Max: 2,147,483,647
+	using i32 = int32_t;
 
-//64-bit int
-//Min: -9 quintillion
-//Max: 9 quintillion
-using i64 = int64_t;
+	//64-bit int
+	//Min: -9 quintillion
+	//Max: 9 quintillion
+	using i64 = int64_t;
 
-//32-bit float
-//6 decimal precision
-using f32 = float;
+	//32-bit float
+	//6 decimal precision
+	using f32 = float;
 
-//64-bit float
-//15 decimal precision
-using f64 = double;
+	//64-bit float
+	//15 decimal precision
+	using f64 = double;
+#endif
+
+#include <cmath>
+#include <algorithm>
 
 namespace KalaHeaders::KalaMath
 {
@@ -191,7 +219,10 @@ namespace KalaHeaders::KalaMath
 	using std::floorf;
 
 	//6-digit precision PI
-	inline constexpr f32 PI = 3.131593f;
+	inline constexpr f32 PI = 3.141593f;
+
+	//15-digit precision PI
+	inline constexpr f64 PI64 = 3.141592653589793;
 
 	//32-bit precision
 	inline constexpr f32 epsilon = 1e-6f;
@@ -1364,23 +1395,23 @@ namespace KalaHeaders::KalaMath
 		if constexpr (N == 2)
 			return 
 		{
-			m.m00 * v.x + m.m10 * v.y,
-			m.m01 * v.x + m.m11 * v.y
+			m.m00 * v.x + m.m01 * v.y,
+			m.m10 * v.x + m.m11 * v.y
 		};
 		if constexpr (N == 3)
 			return 
 		{
-			m.m00 * v.x + m.m10 * v.y + m.m20 * v.z,
-			m.m01 * v.x + m.m11 * v.y + m.m21 * v.z,
-			m.m02 * v.x + m.m12 * v.y + m.m22 * v.z
+			m.m00 * v.x + m.m01 * v.y + m.m02 * v.z,
+			m.m10 * v.x + m.m11 * v.y + m.m12 * v.z,
+			m.m20 * v.x + m.m21 * v.y + m.m22 * v.z
 		};
 		if constexpr (N == 4)
 			return 
 		{
-			m.m00 * v.x + m.m10 * v.y + m.m20 * v.z + m.m30 * v.w,
-			m.m01 * v.x + m.m11 * v.y + m.m21 * v.z + m.m31 * v.w,
-			m.m02 * v.x + m.m12 * v.y + m.m22 * v.z + m.m32 * v.w,
-			m.m03 * v.x + m.m13 * v.y + m.m23 * v.z + m.m33 * v.w
+			m.m00 * v.x + m.m01 * v.y + m.m02 * v.z + m.m03 * v.w,
+			m.m10 * v.x + m.m11 * v.y + m.m12 * v.z + m.m13 * v.w,
+			m.m20 * v.x + m.m21 * v.y + m.m22 * v.z + m.m23 * v.w,
+			m.m30 * v.x + m.m31 * v.y + m.m32 * v.z + m.m33 * v.w
 		};
 	}
 	
@@ -2037,10 +2068,10 @@ namespace KalaHeaders::KalaMath
 		quat nq = normalize_q(q);
 	
 		//returns vec3 as identity if quat input is near identity
-		if (isnear(q.w, 1.0f)
-			&& isnear(q.x)
-			&& isnear(q.y)
-			&& isnear(q.z))
+		if (isnear(nq.w, 1.0f)
+			&& isnear(nq.x)
+			&& isnear(nq.y)
+			&& isnear(nq.z))
 		{
 			return {};
 		}

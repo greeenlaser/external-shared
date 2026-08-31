@@ -14,7 +14,7 @@
 
 namespace ElypsoEngine::Graphics
 {
-    using ElypsoEngine::Core::ElypsoRegistry;
+    using ElypsoEngine::Core::EngineRegistry;
 
     using std::string;
     using std::string_view;
@@ -23,13 +23,8 @@ namespace ElypsoEngine::Graphics
 
     enum class SubEntityType : u8
     {
-        S_INVALID = 0u,
-
-        //model type from KalaGraphics
-        S_MESH = 2u,
-
-        //camera type from KalaGraphics
-        S_CAMERA = 1u,
+        SUBENTITY_MESH    = 0,
+        SUBENTITY_CAMERA  = 1
     };
 
     struct LIB_API SubEntity
@@ -43,41 +38,54 @@ namespace ElypsoEngine::Graphics
     {
     friend struct default_delete<Entity>;
     public:
-        static ElypsoRegistry<Entity>& GetRegistry();
+        KNODISCARD
+		static EngineRegistry<Entity>& GetRegistry();
 
         //Initialize a new entity inside a scene.
         //You must create the subentity in the target library first before assigning its ID here,
         //Elypso Engine will not initialize meshes, cameras and other future types for you
-        static Entity* Initialize(
+        KNODISCARD
+		static Entity* Initialize(
             string&& title,
             u32 sceneID,
             vector<SubEntity>&& subEntities);
 
-        u32 GetID() const;
-        u32 GetSceneID() const;
+        KNODISCARD
+		u32 GetID() const;
+        KNODISCARD
+		u32 GetSceneID() const;
 
         string_view GetTitle() const;
-        bool SetTitle(string&& newTitle);
+        KNODISCARD
+		bool SetTitle(string&& newTitle);
 
-        bool MoveToScene(u32 sceneID);
-        bool MoveToScene(string_view sceneTitle);
+        KNODISCARD
+		bool MoveToScene(u32 sceneID);
+        KNODISCARD
+		bool MoveToScene(string_view sceneTitle);
 
         const vector<SubEntity>& GetSubEntities() const;
-        bool AddSubEntity(SubEntity&& subEntity);
+        KNODISCARD
+		bool AddSubEntity(SubEntity&& subEntity);
         //If viaID is true then the subEntity is removed via its ID,
         //otherwise it is removed via its slot in the vector
-        bool RemoveSubEntity(
+        KNODISCARD
+		bool RemoveSubEntity(
             bool viaID,
             u32 value);
 
-        bool SetParentEntity(u32 entityID);
+        KNODISCARD
+		bool SetParentEntity(u32 entityID);
         void RemoveParentEntity();
-        u32 GetParentEntity();
+        KNODISCARD
+		u32 GetParentEntity();
 
-        bool AddChildEntity(u32 entityID);
+        KNODISCARD
+		bool AddChildEntity(u32 entityID);
         //If viaID is true then the child is removed via its ID,
         //otherwise it is removed via its slot in the vector
-        bool RemoveChildEntity(
+        KNODISCARD
+		bool RemoveChildEntity(
             bool viaID,
             u32 value);
         const vector<u32>& GetChildEntities() const;

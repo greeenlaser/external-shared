@@ -13,7 +13,6 @@
 #include "math_utils.hpp"
 
 #include "core/kg_registry.hpp"
-#include "resources/kg_shader.hpp"
 
 struct VkBuffer_T;
 using VkBuffer = VkBuffer_T*;
@@ -24,10 +23,16 @@ using VmaAllocation = VmaAllocation_T*;
 struct VkDescriptorSet_T;
 using VkDescriptorSet = VkDescriptorSet_T*;
 
+namespace KalaGraphics::Core
+{
+    class HitTest;
+}
+
 namespace KalaGraphics::Resources
 {
     using KalaHeaders::KalaMath::Transform3D;
     using KalaHeaders::KalaMath::mat4;
+    using KalaHeaders::KalaMath::vec4;
     using KalaHeaders::KalaMath::vec3;
     using KalaHeaders::KalaMath::vec2;
 
@@ -38,42 +43,71 @@ namespace KalaGraphics::Resources
     using std::filesystem::path;
     using std::default_delete;
 
+    static constexpr u8 MIN_CUBE_EDGE_COUNT = 3;
+    static constexpr u8 MAX_CUBE_EDGE_COUNT = 32;
+
+    static constexpr u8 MIN_PYRAMID_EDGE_COUNT = 3;
+    static constexpr u8 MAX_PYRAMID_EDGE_COUNT = 32;
+
+    static constexpr u8 MIN_SPHERE_DETAIL_LEVEL = 1;
+    static constexpr u8 MAX_SPHERE_DETAIL_LEVEL = 8;
+
+    enum class FaceDirection : u8
+    {
+        //faces and normals point outwards
+        F_OUT = 0,
+        //faces and normals point inwards
+        F_IN = 1
+    };
+
+    enum class NormalType : u8
+    {
+        //one normal per face, often requiring duplicated vertices
+        N_FLAT = 0,
+        //one normal per shared vertex, with interpolation between them
+        N_SMOOTH = 1
+    };
+
     struct LIB_API Mesh_Cube
     {
-        //ranges from 3 to 255,
+        //clamped from 3 to 32,
         //used for top and bottom edges
-        u8 edgeCount{};
+        u8 edgeCount = 3;
+
+        FaceDirection faceDir{};
+        NormalType normalType{};
     };
 
     struct LIB_API Mesh_Pyramid
     {
-        //clamped from 0.01f to 10000.0f
-        f32 bottomRadius = 1.0f;
-
-        //clamped from 0.01f to 10000.0f
-        f32 height = 1.0f;
-
-        //ranges from 3 to 255,
+        //clamped from 3 to 32,
         //used for bottom edges
-        u8 edgeCount{};
+        u8 edgeCount = 3;
+
+        FaceDirection faceDir{};
+        NormalType normalType{};
     };
 
-    enum class SphereType : u8
-    {
-        S_INVALID = 0u,
-
-        S_UV = 1u,
-        S_ICO = 2u,
-        S_QUAD = 3u
-    };
     struct LIB_API Mesh_Sphere
     {
-        //clamped from 0.01f to 10000.0f
-        f32 radius = 0.5f;
-        //clamped from 1 to 255
-        u8 detailLevel{};
+        //clamped from 1 to 8
+        u8 detailLevel = 1;
 
-        SphereType type{};
+        FaceDirection faceDir{};
+        NormalType normalType = NormalType::N_SMOOTH;
+    };
+
+    enum class AnchorPosition : u8
+    {
+        P_DEFAULT = 0,
+
+        P_BOTTOM_LEFT = 1,
+        P_BOTTOM_RIGHT = 2,
+
+        P_TOP_LEFT = 3,
+        P_TOP_RIGHT = 4,
+        
+        P_CENTER = 5
     };
 
     struct LIB_API Transform
@@ -108,9 +142,10 @@ namespace KalaGraphics::Resources
     };
 
     //Output after generating a meshes data
-    struct LIB_API Mesh_Generated_Data
+    struct LIB_API MeshData
     {
-        vector<Vertex> vertices{};
+        vector<Vertex> vertices3D{};
+        vector<Vertex2D> vertices2D{};
         vector<u32> indices{};
     };
 
@@ -121,61 +156,92 @@ namespace KalaGraphics::Resources
     friend class Shader;
     friend class Texture;
     friend class Camera;
+    friend class KalaGraphics::Core::HitTest;
     friend struct default_delete<Mesh>;
     public:
-        static KalaGraphicsRegistry<Mesh>& GetRegistry();
+        KNODISCARD
+		static KalaGraphicsRegistry<Mesh>& GetRegistry();
 
         //Create a blank mesh,
         //all meshes require a shader even if that shader is also blank,
         //all meshes require a texture even if that texture is also a default 1x1 texture
-        static Mesh* Initialize(
+        KNODISCARD
+		static Mesh* Initialize(
             u32 shaderID,
             u32 textureID);
 
-        //Import FBX, OBJ or GLTF model mesh data
-        static Mesh_Generated_Data GenerateMeshData(const path& meshPath);
-        //Generate a cube or cylinder
-        static Mesh_Generated_Data GenerateMeshData(Mesh_Cube cubeData);
-        //Generate a pyramid or cone
-        static Mesh_Generated_Data GenerateMeshData(Mesh_Pyramid pyramidData);
-        //Generate a sphere
-        static Mesh_Generated_Data GenerateMeshData(
-            SphereType sphereType,
-            Mesh_Sphere sphereData);
+        //Generate a 2D quad
+        KNODISCARD
+		static MeshData GenerateMeshData();
+        //Generate a 3D cube or 3D cylinder
+        KNODISCARD
+		static MeshData GenerateMeshData(Mesh_Cube cubeData);
+        //Generate a 3D pyramid or 3D cone
+        KNODISCARD
+		static MeshData GenerateMeshData(Mesh_Pyramid pyramidData);
+        //Generate a 3D sphere
+        KNODISCARD
+		static MeshData GenerateMeshData(Mesh_Sphere sphereData);
 
-        u32 GetID() const;
-        u32 GetCameraID() const;
+        KNODISCARD
+		u32 GetID() const;
+        KNODISCARD
+        u32 GetHitTestID() const;
+        KNODISCARD
+		u32 GetCameraID() const;
 
+        KNODISCARD
         u32 GetShaderID() const;
         //Changing to a shader whose 2D state doesn't match the old shader 2D state
         //will recreate this mesh data and detach camera,
         //UpdateMeshData is called internally on success
         void SetShaderID(u32 newID);
 
-        u32 GetTextureID() const;
+        KNODISCARD
+		u32 GetTextureID() const;
         void SetTextureID(u32 newID);
 
-        const Transform3D& GetTransform() const;
-        void SetTransform(Transform3D&& newTransform);
+        KNODISCARD
+        bool IsVisible() const;
+        void SetVisibleState(bool newValue);
 
-        bool Is2D() const;
-        //Toggling 2D state resets mesh data and detaches attached camera,
-        //UpdateMeshData is called internally on success
-        void Set2DState(bool newState);
+        KNODISCARD
+		bool Is2D() const;
 
-        const vector<Vertex>& GetVertices() const;
-        void SetVertices(vector<Vertex>&& newVertices);
+        KNODISCARD
+        u16 GetDrawOrderIndex() const;
+        //Set the mesh draw order, set sortNow to true
+        //if you want this call to sort all meshes, 
+        //otherwise the next global update will sort all meshes,
+        //not used for 3D meshes
+        void SetDrawOrderIndex(
+            u16 newValue,
+            bool sortNow = false);
 
-        const vector<Vertex2D>& GetVertices2D() const;
-        void SetVertices2D(vector<Vertex2D>&& newVertices);
+        KNODISCARD
+		Transform3D& GetTransform();
 
-        const vector<u32>& GetIndices() const;
-        void SetIndices(vector<u32>&& newIndices);
+        AnchorPosition GetLocalAnchorPosition() const;
+        //Automatically always updates this mesh transform position relative to local anchor,
+        //not used for 3D meshes
+        void SetLocalAnchorPosition(AnchorPosition pos);
 
-        const mat4& GetMatrix() const;
+        AnchorPosition GetViewportAnchorPosition() const;
+        //Automatically always updates this mesh transform position relative to viewport anchor,
+        //not used for 3D meshes
+        void SetViewportAnchorPosition(AnchorPosition pos);
 
-        //Should be called after updating any mesh data
-        void UpdateMeshData();
+        KNODISCARD
+		const vector<Vertex>& GetVertices() const;
+        KNODISCARD
+		const vector<Vertex2D>& GetVertices2D() const;
+        KNODISCARD
+		const vector<u32>& GetIndices() const;
+
+        void SetMeshData(MeshData&& meshData);
+
+        KNODISCARD
+		const mat4& GetMatrix() const;
 
         void Destroy();
     private:
@@ -183,19 +249,29 @@ namespace KalaGraphics::Resources
 
         void ClearAllData();
 
-        void UpdateVertices();
-        void UpdateIndices();
-
-        bool isDestroyingCamera{};
+        void UpdateMeshData();
 
         u32 ID{};
         u32 shaderID{};
-        u32 textureID{};
+        u32 hitTestID{};
         u32 cameraID{};
+        u32 textureID{};
+
+        u16 drawOrderIndex{};
+
+        bool isBufferDataDirty{};
+        bool isMeshDataDirty{};
+
+        bool isVisible = true;
+
+        bool isDestroyingCamera{};
 
         bool is2D{};
 
         Transform3D transform{};
+
+        AnchorPosition localAnchor{};
+        AnchorPosition viewportAnchor{};
 
         //vertex data
 
@@ -218,8 +294,6 @@ namespace KalaGraphics::Resources
         //mesh matrix data
 
         mat4 meshMatrix{};
-
-        bool isDirty{};
 
         VkBuffer vkMeshUBOBuffer{};
         VmaAllocation vmaMeshUBOAllocation{};

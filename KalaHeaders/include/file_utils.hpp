@@ -84,19 +84,6 @@
 	#endif
 #endif
 
-#include <string>
-#include <vector>
-#include <sstream>
-#include <fstream>
-#include <algorithm>
-#include <filesystem>
-#include <cerrno>
-#include <cstring>
-#include <cstdint>
-#include <concepts>
-#include <type_traits>
-#include <chrono>
-
 //
 // DEBUG MACRO
 //
@@ -128,62 +115,87 @@
 	#define ccast const_cast
 #endif
 
+//
+// COMPILER MACROS
+//
+
+#if !defined(KNORETURN)
+	#define KNORETURN [[noreturn]]
+#endif
+
 #if !defined(KNODISCARD)
 	#define KNODISCARD [[nodiscard]]
 #endif
+
+#include <cstdint>
 
 //
 // NUMERIC TYPE SHORTHANDS
 //
 
-//8-bit unsigned int
-//Min: 0
-//Max: 255
-using u8 = uint8_t;
+#if !defined(KNUM)
+	#define KNUM
+	//8-bit unsigned int
+	//Min: 0
+	//Max: 255
+	using u8 = uint8_t;
 
-//16-bit unsigned int
-//Min: 0
-//Max: 65,535
-using u16 = uint16_t;
+	//16-bit unsigned int
+	//Min: 0
+	//Max: 65,535
+	using u16 = uint16_t;
 
-//32-bit unsigned int
-//Min: 0
-//Max: 4,294,967,295
-using u32 = uint32_t;
+	//32-bit unsigned int
+	//Min: 0
+	//Max: 4,294,967,295
+	using u32 = uint32_t;
 
-//64-bit unsigned int
-//Replaces handles and pointers (uintptr_t)
-//Min: 0
-//Max: 18 quintillion
-using u64 = uint64_t;
+	//64-bit unsigned int
+	//Replaces handles and pointers (uintptr_t)
+	//Min: 0
+	//Max: 18 quintillion
+	using u64 = uint64_t;
 
-//8-bit int
-//Min: -128
-//Max: 127
-using i8 = int8_t;
+	//8-bit int
+	//Min: -128
+	//Max: 127
+	using i8 = int8_t;
 
-//16-bit int
-//Min: -32,768
-//Max: 32,767
-using i16 = int16_t;
+	//16-bit int
+	//Min: -32,768
+	//Max: 32,767
+	using i16 = int16_t;
 
-//32-bit int
-//Min: -2,147,483,648
-//Max: 2,147,483,647
-using i32 = int32_t;
+	//32-bit int
+	//Min: -2,147,483,648
+	//Max: 2,147,483,647
+	using i32 = int32_t;
 
-//64-bit int
-//Min: -9 quintillion
-//Max: 9 quintillion
-using i64 = int64_t;
+	//64-bit int
+	//Min: -9 quintillion
+	//Max: 9 quintillion
+	using i64 = int64_t;
 
-//32-bit float
-//6 decimal precision
-using f32 = float;
+	//32-bit float
+	//6 decimal precision
+	using f32 = float;
 
-//64-bit float
-//15 decimal precision
-using f64 = double;
+	//64-bit float
+	//15 decimal precision
+	using f64 = double;
+#endif
+
+#include <string>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <algorithm>
+#include <filesystem>
+#include <cerrno>
+#include <cstring>
+#include <concepts>
+#include <type_traits>
+#include <chrono>
 
 namespace KalaHeaders::KalaFile
 {	
@@ -399,10 +411,11 @@ namespace KalaHeaders::KalaFile
 
 		auto complete = [&out, &results]() -> void
 			{
-				out.insert(
-					out.end(),
-					make_move_iterator(results.begin()),
-					make_move_iterator(results.end()));
+				for (path& p : results)
+				{
+					out.push_back(std::move(p));
+				}
+				results.clear();
 			};
 
 		auto clean_paths = [&results]() -> string
@@ -548,10 +561,11 @@ namespace KalaHeaders::KalaFile
 					}
 				}
 
-				out.insert(
-					out.end(),
-					make_move_iterator(tempOutTargetPaths.begin()),
-					make_move_iterator(tempOutTargetPaths.end()));
+				for (path& p : tempOutTargetPaths)
+				{
+					out.push_back(std::move(p));
+				}
+				tempOutTargetPaths.clear();
 
 				return{};
 			};
@@ -662,10 +676,11 @@ namespace KalaHeaders::KalaFile
 					}
 				}
 
-				out.insert(
-					out.end(),
-					make_move_iterator(tempOutFilePaths.begin()),
-					make_move_iterator(tempOutFilePaths.end()));
+				for (path& p : tempOutFilePaths)
+				{
+					out.push_back(std::move(p));
+				}
+				tempOutFilePaths.clear();
 
 				return{};
 			};
@@ -688,10 +703,11 @@ namespace KalaHeaders::KalaFile
 					+ "' because of wildcard error! Reason: " + result;
 			}
 
-			results.insert(
-				results.end(),
-				make_move_iterator(foundPaths.begin()),
-				make_move_iterator(foundPaths.end()));
+			for (path& p : foundPaths)
+			{
+				results.push_back(std::move(p));
+			}
+			foundPaths.clear();
 
 			string cleanupResult = clean_paths();
 			if (!cleanupResult.empty()) return cleanupResult;
@@ -714,10 +730,11 @@ namespace KalaHeaders::KalaFile
 					+ "' because of wildcard error! Reason: " + result;
 			}
 
-			results.insert(
-				results.end(),
-				make_move_iterator(foundPaths.begin()),
-				make_move_iterator(foundPaths.end()));
+			for (path& p : foundPaths)
+			{
+				results.push_back(std::move(p));
+			}
+			foundPaths.clear();
 
 			string cleanupResult = clean_paths();
 			if (!cleanupResult.empty()) return cleanupResult;
@@ -743,10 +760,11 @@ namespace KalaHeaders::KalaFile
 					+ "' because of wildcard error! Reason: " + result;
 			}
 
-			results.insert(
-				results.end(),
-				make_move_iterator(foundPaths.begin()),
-				make_move_iterator(foundPaths.end()));
+			for (path& p : foundPaths)
+			{
+				results.push_back(std::move(p));
+			}
+			foundPaths.clear();
 
 			string cleanupResult = clean_paths();
 			if (!cleanupResult.empty()) return cleanupResult;
@@ -771,10 +789,11 @@ namespace KalaHeaders::KalaFile
 					+ "' because of wildcard error! Reason: " + result;
 			}
 
-			results.insert(
-				results.end(),
-				make_move_iterator(foundPaths.begin()),
-				make_move_iterator(foundPaths.end()));
+			for (path& p : foundPaths)
+			{
+				results.push_back(std::move(p));
+			}
+			foundPaths.clear();
 
 			string cleanupResult = clean_paths();
 			if (!cleanupResult.empty()) return cleanupResult;
@@ -797,10 +816,11 @@ namespace KalaHeaders::KalaFile
 					+ "' because of wildcard error! Reason: " + result;
 			}
 
-			results.insert(
-				results.end(),
-				make_move_iterator(foundPaths.begin()),
-				make_move_iterator(foundPaths.end()));
+			for (path& p : foundPaths)
+			{
+				results.push_back(std::move(p));
+			}
+			foundPaths.clear();
 
 			string cleanupResult = clean_paths();
 			if (!cleanupResult.empty()) return cleanupResult;
